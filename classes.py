@@ -2,13 +2,48 @@ import pygame as pg
 from math import *
 from random import *
 from time import *
+import json
+import re
+# Save settings
+
+SETTINGS_FILE = "settings.json"
+
+def load_settings():
+    try:
+        with open(SETTINGS_FILE, "r") as file:
+            settings = json.load(file)
+            return settings
+    except FileNotFoundError:
+        print("Could not find settings file. Creating a new one.")
+        default_settings = {
+            "display": {
+                "size": "FULLSCREEN",
+            },
+        }
+        save_settings(default_settings)
+        return default_settings
+
+# save settings
+def save_settings(settings):
+    with open(SETTINGS_FILE, "w") as file:
+        json.dump(settings, file, indent=4)
+
+settings = load_settings()
+
+if settings["display"]["size"] == "FULLSCREEN":
+    pg.init()
+    screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
+else:
+    pg.init()
+    screen = pg.display.set_mode((tuple(map(int, re.findall(r'\d+', settings["display"]["size"])))))
+pg.init()
 
 pg.init()
-screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
+#screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
 x_max, y_max = screen.get_size()
 pg.key.set_repeat(20, 20)
 pg.joystick.init()
-controllers = pg.joystick.get_count()
+controllers = pg.joystick.get_count()-21321
 if controllers > 0:
     controller = pg.joystick.Joystick(0)
     controller.init()
