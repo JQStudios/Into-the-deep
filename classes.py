@@ -8,7 +8,7 @@ screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
 x_max, y_max = screen.get_size()
 pg.key.set_repeat(20, 20)
 pg.joystick.init()
-controllers = pg.joystick.get_count()-3
+controllers = pg.joystick.get_count()
 if controllers > 0:
     controller = pg.joystick.Joystick(0)
     controller.init()
@@ -225,6 +225,11 @@ class Ship(pg.sprite.Sprite):
 
     def move(self, timeout, controller=None):
         global vibrating
+
+        self.x -= self.x_speed
+        self.y -= self.y_speed
+
+        """
         if time() >= self.dodge_time+0.1:
             self.dodge_ready = False
         if not self.control:
@@ -252,36 +257,12 @@ class Ship(pg.sprite.Sprite):
             self.angle -= 360
         elif self.angle < 0:
             self.angle += 360
+        """
         self.image = pg.transform.rotate(self.org_image, self.angle)
         self.actual_size = [self.image.get_width(), self.image.get_height()]
-
         """
-        if not self.brake:
-            if self.glide:
-                self.x_speed -= sin(radians(self.angle))*self.speed/50
-                self.y_speed -= cos(radians(self.angle))*self.speed/50
-            else:
-                difference = abs(self.x_speed)
-                if difference <= 1:
-                    self.x_speed = 0
-                if self.x_speed > 0:
-                    self.x_speed -= sin(radians(self.angle))*self.speed/100
-                else:
-                    self.x_speed += sin(radians(self.angle))*self.speed/100
-                difference = abs(self.y_speed)
-                if difference <= 1:
-                    self.y_speed = 0
-                if self.y_speed > 0:
-                    self.y_speed -= cos(radians(self.angle))*self.speed/100
-                else:
-                    self.y_speed += cos(radians(self.angle))*self.speed/100
-        else:
-            self.x_speed = 0
-            self.y_speed = 0
-        self.x += self.x_speed
-        self.y += self.y_speed
         """
-
+        """
         if not self.brake:
             if self.glide:
                 self.actual_speed += 0.01
@@ -292,34 +273,57 @@ class Ship(pg.sprite.Sprite):
                     self.actual_speed = self.speed
         else:
             self.actual_speed = 0
+        """
+        """
+
+        if not self.brake:
+            if self.glide:
+                self.x_speed += sin(radians(self.angle))*self.actual_speed/100*timeout
+                self.y_speed += cos(radians(self.angle))*self.actual_speed/100*timeout
+            else:
+                x_speed_before = self.x_speed
+                y_speed_before = self.y_speed
+                self.x_speed = abs(self.x_speed) - abs(self.x_speed / 100)
+                self.y_speed = abs(self.y_speed) - abs(self.y_speed / 100)
+                if x_speed_before < 0:
+                    self.x_speed = -self.x_speed
+                if y_speed_before < 0:
+                    self.y_speed = -self.y_speed
+                self.actual_speed = self.speed
+        else:
+            self.actual_speed = 0
+
         if (not self.dodge) and (not self.left_dodge) and (not self.right_dodge):
             self.x -= sin(radians(self.angle))*self.actual_speed*timeout
             self.y -= cos(radians(self.angle))*self.actual_speed*timeout
+            self.x -= self.x_speed
+            self.y -= self.y_speed
+        """
 
         if self.x <= 0:
             self.x = 0
-            self.minus_shield(0.05*timeout)
+            self.minus_shield(0.05 * timeout)
             if controller is not None:
                 if not vibrating:
                     controller.rumble(0, 1, 0)
                     vibrating = True
         if self.x >= x_max:
             self.x = x_max
-            self.minus_shield(0.05*timeout)
+            self.minus_shield(0.05 * timeout)
             if controller is not None:
                 if not vibrating:
                     controller.rumble(0, 1, 0)
                     vibrating = True
         if self.y <= 0:
             self.y = 0
-            self.minus_shield(0.05*timeout)
+            self.minus_shield(0.05 * timeout)
             if controller is not None:
                 if not vibrating:
                     controller.rumble(0, 1, 0)
                     vibrating = True
         if self.y >= y_max:
             self.y = y_max
-            self.minus_shield(0.05*timeout)
+            self.minus_shield(0.05 * timeout)
             if controller is not None:
                 if not vibrating:
                     controller.rumble(0, 1, 0)
@@ -328,9 +332,9 @@ class Ship(pg.sprite.Sprite):
             vibrating = False
         if self.shield < 0:
             self.shield = 0
-        if time() >= self.damage_timeout+5:
+        if time() >= self.damage_timeout + 5:
             if self.shield < self.max_shield:
-                self.shield += 0.05*timeout
+                self.shield += 0.05 * timeout
             else:
                 self.shield = self.max_shield
 

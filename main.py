@@ -3,7 +3,7 @@ from abilities import *
 from techtree import *
 
 currency = data[0]
-mode = "battle_royal"
+mode = "asdf"
 ship_class, ship1_class, fighters, botcount = select()
 asteroidpng = pg.image.load("asteroid.png")
 dronepng = pg.image.load("drone.png")
@@ -85,7 +85,9 @@ def ion_attack(x, y, radius, delay, self):
             ship.control_time = time()+delay
 
 
-def target_system(obj, obj1):
+def target_system(obj, obj1, angle=None, diff=15):
+    if angle is None:
+        angle = obj.angle
     selected = []
     obj.lock_angle = obj.angle
     if obj.guns is not None:
@@ -98,8 +100,8 @@ def target_system(obj, obj1):
         impact_x = obj1[nr].x - sin(radians(obj1[nr].angle)) * obj1[nr].actual_speed * ticks
         impact_y = obj1[nr].y - cos(radians(obj1[nr].angle)) * obj1[nr].actual_speed * ticks
         target_angle = get_angle((obj1[nr].x, obj1[nr].y), (obj.x, obj.y))
-        anglediff = (obj.angle - target_angle + 180 + 360) % 360 - 180
-        if (anglediff <= 15) and (anglediff >= -15):
+        anglediff = (angle - target_angle + 180 + 360) % 360 - 180
+        if (anglediff <= diff) and (anglediff >= -diff):
             selected.append([obj1[nr], impact_dist])
 
     if len(selected) > 0:
@@ -122,13 +124,44 @@ def target_system(obj, obj1):
         return None
 
 
-def controller_check(obj, controller_obj):
+def controller_check(obj, controller_obj, enemies):
+    """
     turn = controller_obj.get_axis(2)
     if (turn != obj.og_turn) and (abs(turn) >= 0.1):
         obj.og_turn = turn
     if abs(turn) <= 0.05:
         obj.og_turn = 0
     obj.angle -= obj.og_turn*obj.agility
+    """
+    if abs(controller_obj.get_axis(0)) >= 0.1 or abs(controller_obj.get_axis(1)) >= 0.1:
+        obj.angle = get_angle((0, 0), (-controller_obj.get_axis(0), -controller_obj.get_axis(1)))
+        obj.x_speed = -controller_obj.get_axis(0)*obj.speed
+        obj.y_speed = -controller_obj.get_axis(1)*obj.speed
+    else:
+        obj.x_speed = 0
+        obj.y_speed = 0
+    if abs(controller_obj.get_axis(2)) >= 0.3 or abs(controller_obj.get_axis(3)) >= 0.3:
+        shoot_angle = get_angle((0, 0), (-controller_obj.get_axis(2), -controller_obj.get_axis(3)))
+        pg.draw.polygon(screen, (255, 0, 0), [(obj.x, obj.y),
+                        (obj.x-sin(radians(shoot_angle-20))*400, obj.y-cos(radians(shoot_angle-20))*400),
+                        (obj.x-sin(radians(shoot_angle+20))*400, obj.y-cos(radians(shoot_angle+20))*400),
+                                              (obj.x, obj.y)], 2)
+        target = target_system(obj, enemies, shoot_angle, 20)
+        if target is not None:
+            target.rect_color = (255, 0, 0)
+            if time() >= obj.shot+obj.fire_rate:
+                if obj.guns is None:
+                    shoots.append(Shoot(obj.x, obj.y, obj.actual_speed + 10, obj.lock_angle,
+                                        obj.damage, red_blast, obj))
+                else:
+                    for gun in obj.guns:
+                        nr = obj.guns.index(gun)
+                        img = pg.transform.scale(red_blast, (1, 1))
+                        shoots.append(Shoot(obj.x - sin(radians(obj.angle + 90)) * gun,
+                                            obj.y - cos(radians(obj.angle + 90)) * gun,
+                                            obj.actual_speed + 10, obj.lock_angles[nr],
+                                            obj.damage, red_blast, obj))
+                obj.shot = time()
     if not controller_obj.get_button(5):
         obj.let_go_shoot = True
     if obj.let_go_shoot:
@@ -263,7 +296,7 @@ while running:
 
     screen.fill((0, 0, 0))
     if controllers > 0:
-        controller_check(fighter, controller)
+        controller_check(fighter, controller, bots)
 
     for obj in objects:
         obj.move()
@@ -275,7 +308,7 @@ while running:
             minus_shield(fighter, 100)
             if controllers >= 1:
                 vibratetil = time()+0.3
-                controller.rumbale(0, 1, 0)
+                controller.rumble(0, 1, 0)
             objects.remove(obj)
             break
 
