@@ -5,6 +5,8 @@ pg.init()
 pg.font.init()
 font = pg.font.Font("assets/fonts/Starjedi.ttf", 22)
 
+# example
+
 pg.display.set_caption("Menu Example")
 buttons = []
 running = True
