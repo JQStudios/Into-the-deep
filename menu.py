@@ -167,7 +167,7 @@ def execButtonAction(action, button_x, button_y):
     global MenuDisplayID, caller_level1_x, caller_level1_y, caller_level2_x, caller_level2_y, NewMessage
     if action=="play":
         print("play")
-        subprocess.run(['python', 'main.py'])        
+        subprocess.run(['python', 'dashboard.py'])        
     elif action=="options":
         MenuDisplayID = 1
     elif action=="main_menu":
@@ -260,7 +260,6 @@ def check_button(button, pos):
         return True
     
 def button_dynamic_size(original_width, original_height, y, size_x=None):
-    
     aspect_ratio = original_width / original_height
     size_y = int(size_x * aspect_ratio)
     newsize_x = int(size_x * aspect_ratio)
