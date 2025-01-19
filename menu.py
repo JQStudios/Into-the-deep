@@ -36,7 +36,7 @@ color_normal=(255,255,255)
 # Classes
 
 class button(pg.sprite.Sprite):
-    def __init__(self, x, y, size_x, size_y, DisplayText, action=None):
+    def __init__(self, x, y, size_x, size_y, DisplayText, type="MenuButton", action=None):
         super().__init__()
         self.x = x
         self.y = y
@@ -44,20 +44,22 @@ class button(pg.sprite.Sprite):
         self.size_y = size_y
         self.action = action
         self.DisplayText = DisplayText
+        self.type = type
 
     def drawButton(self, x, y,  screen, hover=False):
-        if hover:
-            ScaledImageNormal = pg.transform.scale(ImageNormal, (self.size_x, self.size_y))
-            screen.blit(ScaledImageNormal, (x, y))
-            
-        else:
-            ScaledImageHover = pg.transform.scale(ImageHover, (self.size_x, self.size_y))
-            screen.blit(ScaledImageHover, (x, y))
+        if self.type == "MenuButton":
+            if hover:
+                ScaledImageNormal = pg.transform.scale(ImageNormal, (self.size_x, self.size_y))
+                screen.blit(ScaledImageNormal, (x, y))
 
-        
-        text_surface = font.render(self.DisplayText, True, (0, 0, 0))
-        text_rect = text_surface.get_rect(center=(x + self.size_x // 2, y + self.size_y // 2 - self.size_y // 20))
-        screen.blit(text_surface, text_rect)
+            else:
+                ScaledImageHover = pg.transform.scale(ImageHover, (self.size_x, self.size_y))
+                screen.blit(ScaledImageHover, (x, y))
+
+
+            text_surface = font.render(self.DisplayText, True, (0, 0, 0))
+            text_rect = text_surface.get_rect(center=(x + self.size_x // 2, y + self.size_y // 2 - self.size_y // 20))
+            screen.blit(text_surface, text_rect)
 
 class Message:
     def __init__(self, text, screen, color = (0, 0, 0), duration=0.2, speed=50):
@@ -120,7 +122,7 @@ class Message:
 
 
 # Main functions
-def CreateMenu(x, y, size_x, size_y, button_count, spacing, SelfMenuDisplayID, direction="h", mousepos=[0,0], actions=[], DisplayTexts=[], buttons=[]):
+def CreateMenu(x, y, size_x, size_y, button_count, spacing, SelfMenuDisplayID, direction="h", type="MenuButton", mousepos=[0,0], actions=[], DisplayTexts=[], buttons=[]):
     # Background
     global BackgroundZoomX, BackgroundZoomY
     if BackgroundZoomX == None and BackgroundZoomY == None:
@@ -135,14 +137,14 @@ def CreateMenu(x, y, size_x, size_y, button_count, spacing, SelfMenuDisplayID, d
         if direction == "h":
             while i<button_count:
                 if len(buttons) == 0:
-                    local_buttons.append(button(x+(i*spacing), y, size_x, size_y, DisplayTexts[i], actions[i]))
+                    local_buttons.append(button(x+(i*spacing), y, size_x, size_y, DisplayTexts[i], type, actions[i]))
                 else:
                     local_buttons = buttons
                 i+=1
         if direction == "v":
             while i<button_count:
                 if len(buttons) == 0:
-                    local_buttons.append(button(x, y+(i*spacing), size_x, size_y, DisplayTexts[i], actions[i]))
+                    local_buttons.append(button(x, y+(i*spacing), size_x, size_y, DisplayTexts[i],type, actions[i]))
                 else:
                     local_buttons = buttons
                 i+=1
@@ -215,15 +217,15 @@ def updateMenus(buttons):
         oldlocalbuttons = buttons
     localbuttons = []
     if MenuDisplayID > 0 and MenuDisplayID < 6:
-        newlocalbuttons = CreateMenu(x_max/15, y_max/10, 200, 150, 4, y_max/6, True, "v", pg.mouse.get_pos(), ["graphics", "controls", "display", "main_menu"], ["graphics", "controls", "display", "main menu"], oldlocalbuttons)
+        newlocalbuttons = CreateMenu(x_max/15, y_max/10, 200, 150, 4, y_max/6, True, "v", "MenuButton", pg.mouse.get_pos(), ["graphics", "controls", "display", "main_menu"], ["graphics", "controls", "display", "main menu"], oldlocalbuttons)
         for button in newlocalbuttons:
             localbuttons.append(button)
     if MenuDisplayID > 3 and MenuDisplayID < 6:
-        newlocalbuttons = CreateMenu(caller_level1_x + x_max/5, caller_level1_y, 200, 150, 2, y_max/6, True, "v", pg.mouse.get_pos(), ["display_size", "fullscreen"], ["Display Size", "Fullscreen"], oldlocalbuttons)
+        newlocalbuttons = CreateMenu(caller_level1_x + x_max/5, caller_level1_y, 200, 150, 2, y_max/6, True, "v", "MenuButton", pg.mouse.get_pos(), ["display_size", "fullscreen"], ["Display Size", "Fullscreen"], oldlocalbuttons)
         for button in newlocalbuttons:
             localbuttons.append(button)
     if MenuDisplayID == 5:
-        newlocalbuttons = CreateMenu(caller_level2_x + x_max/5, caller_level2_y, 200, 150, 3, y_max/6, 5, "v", pg.mouse.get_pos(), ["800x600", "1280x720", "1920x1080"], ["800x600", "1280x720", "1920x1080"], oldlocalbuttons)
+        newlocalbuttons = CreateMenu(caller_level2_x + x_max/5, caller_level2_y, 200, 150, 3, y_max/6, 5, "v", "MenuButton", pg.mouse.get_pos(), ["800x600", "1280x720", "1920x1080"], ["800x600", "1280x720", "1920x1080"], oldlocalbuttons)
         for button in newlocalbuttons:
             localbuttons.append(button)
     return localbuttons

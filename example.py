@@ -15,7 +15,7 @@ size_x, size_y =  button_dynamic_size(100, 100, y_max - y_max / 6, 200)
 while running:
     buttons = []
     screen.fill((0, 0, 0))
-    buttons = CreateMenu(x_max/20,y_max-y_max/6, size_x, size_y, 4, x_max/4, 0, "h", pg.mouse.get_pos(), ["play", "options", "credits", "quit"], ["play", "options", "credits", "quit"], buttons)
+    buttons = CreateMenu(x_max/20,y_max-y_max/6, size_x, size_y, 4, x_max/4, 0, "h", "MenuButton", pg.mouse.get_pos(), ["play", "options", "credits", "quit"], ["play", "options", "credits", "quit"], buttons)
     if buttons == None:
         buttons = updateMenus(buttons)
     DisplayMenus(buttons, pg.mouse.get_pos())
