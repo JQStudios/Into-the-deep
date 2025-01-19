@@ -7,6 +7,8 @@ import time
 print("menu.py imported")
 ImageNormal = pg.image.load("ButtonNormal2.png")
 ImageHover = pg.image.load("ButtonHover2.png")
+MissionImageNormal = pg.image.load("MissionSelectiontile.png")
+MissionImageHover = pg.image.load("MissionSelectiontileHover.png")
 BackgroundImg = pg.image.load("MainBackground.png")
 if 'MenuDisplayID' not in globals():
     MenuDisplayID = 0
@@ -28,7 +30,7 @@ if 'caller_level2_y' not in globals():
     caller_level2_y = 0
 pg.font.init() 
 font = pg.font.Font("assets/fonts/Starjedi.ttf", 22)
-
+DescriptionFont = pg.font.Font("assets/fonts/Starjedi.ttf", 12)
 color_hover=(175,175,175)
 color_normal=(255,255,255)
 
@@ -60,6 +62,25 @@ class button(pg.sprite.Sprite):
             text_surface = font.render(self.DisplayText, True, (0, 0, 0))
             text_rect = text_surface.get_rect(center=(x + self.size_x // 2, y + self.size_y // 2 - self.size_y // 20))
             screen.blit(text_surface, text_rect)
+        if self.type == "MissionButton":
+            if hover:
+                ScaledImageNormal = pg.transform.scale(MissionImageNormal, (self.size_x, self.size_y))
+                screen.blit(ScaledImageNormal, (x, y))
+
+            else:
+                ScaledImageHover = pg.transform.scale(MissionImageHover, (self.size_x, self.size_y))
+                screen.blit(ScaledImageHover, (x, y))
+            name, description = self.DisplayText.split(":", 1)
+            name, description = name.strip(), description.strip()
+            text_surface = font.render(name, True, (0, 0, 0))
+            text_rect = text_surface.get_rect(center=(x + self.size_x // 2, y + self.size_y // 2 - self.size_y // 20))
+            screen.blit(text_surface, text_rect)
+            wrapped_lines = wrap_text(description, DescriptionFont, self.size_x)
+            y_offset = 50
+            for line in wrapped_lines:
+                line_surface = DescriptionFont.render(line, True, (255,255,255))
+                screen.blit(line_surface, (50, y_offset))
+                y_offset += line_surface.get_height() + 5
 
 class Message:
     def __init__(self, text, screen, color = (0, 0, 0), duration=0.2, speed=50):
@@ -272,3 +293,23 @@ def button_dynamic_size(original_width, original_height, y, size_x=None):
         aspect_ratio -= 0.05
     print(f"dinamicly changed button size to {aspect_ratio}, new dimensionens are {newsize_x}x{size_y}")
     return newsize_x, size_y
+
+def wrap_text(text, font, max_width):
+    words = text.split(' ')  # Split text into words
+    lines = []
+    current_line = []
+
+    for word in words:
+        current_line.append(word)
+        # Render the current line to check its width
+        line_surface = font.render(' '.join(current_line), True, text_color)
+        if line_surface.get_width() > max_width:
+            current_line.pop()
+            lines.append(' '.join(current_line))
+            current_line = [word]
+
+    # Add the last line
+    if current_line:
+        lines.append(' '.join(current_line))
+
+    return lines
