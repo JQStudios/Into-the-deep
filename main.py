@@ -31,16 +31,18 @@ for nr in range(0, botcount+level):
         hp = 35
         damage = 1
     bots.append(Bot(randint(0, x_max), randint(0, y_max), dronepng, hp=hp, damage=damage))
+spawn_time = time()
 
 
 def minus_shield(obj, damage):
-    obj.damage_timeout = time()
-    if obj.shield > 0:
-        obj.shield -= damage
-        if obj.shield < 0:
-            obj.shield = 0
-    else:
-        obj.hp -= damage
+    if time() >= spawn_time+2:
+        obj.damage_timeout = time()
+        if obj.shield > 0:
+            obj.shield -= damage
+            if obj.shield < 0:
+                obj.shield = 0
+        else:
+            obj.hp -= damage
 
 
 def in_rect(pos, rect):
@@ -344,9 +346,10 @@ while running:
                     shoot.remove = True
             for bot in bots:
                 if control_overlaps(shoot.direction, bot):
-                    bot.hp -= shoot.damage
-                    removables.append(shoot)
-                    shoot.remove = True
+                    if not bot.dead:
+                        bot.hp -= shoot.damage
+                        removables.append(shoot)
+                        shoot.remove = True
             if control_overlaps(shoot.direction, fighter):
                 minus_shield(fighter, shoot.damage)
                 removables.append(shoot)
@@ -359,9 +362,6 @@ while running:
             removables.remove(shoot)
         else:
             removables = []
-    for shoot in shoots:
-        if shoot.remove:
-            print("remove")
 
     for bot in bots:
         if mode == "battle_royal":
@@ -370,39 +370,53 @@ while running:
                 if bot1 != bot:
                     enemies.append((bot1, dist((bot1.x, bot1.y), (bot.x, bot.y))))
             enemies = sorted(enemies, key=lambda tup: tup[1])
-            bot.attack(enemies[0][0], objects, mode)
+            if not bot.dead:
+                bot.attack(enemies[0][0], objects, mode)
         else:
-            bot.attack(fighter, objects, mode)
+            if not bot.dead:
+                bot.attack(fighter, objects, mode)
         pg.draw.rect(screen, bot.rect_color, [bot.x - bot.hitbox / 2, bot.y - bot.hitbox / 2,
                                            bot.hitbox, bot.hitbox], 2)
         screen.blit(bot.image, (bot.x - bot.actual_size[0] / 2, bot.y - bot.actual_size[1] / 2))
         pg.draw.line(screen, (255, 0, 0), (bot.x-bot.hitbox/2, bot.y-bot.hitbox/2-10),
                      ((bot.x-bot.hitbox/2)+bot.hp*(bot.hitbox/bot.max_hp), bot.y-bot.hitbox/2-10), 4)
         if control_overlaps(fighter, bot):
-            if fighter.shield > 0:
-                fighter.shield -= bot.hp
-                bot.hp = 0
-            else:
-                bothp = bot.hp
-                bot.hp -= fighter.hp
-                fighter.hp -= bothp
+            if not bot.dead:
+                if fighter.shield > 0:
+                    fighter.shield -= bot.hp
+                    bot.hp = 0
+                else:
+                    bothp = bot.hp
+                    bot.hp -= fighter.hp
+                    fighter.hp -= bothp
         if time() >= bot.shot+bot.fire_rate:
-            bot.shot = time()
-            if bot.guns is None:
-                shoots.append(Shoot(bot.x, bot.y, bot.actual_speed + 10, bot.angle,
-                                    bot.damage, red_blast, fighter))
-            else:
-                for gun in bot.guns:
-                    nr = bot.guns.index(gun)
-                    shoots.append(Shoot(bot.x - sin(radians(bot.angle+90)) * gun,
-                                        bot.y - cos(radians(bot.angle+90)) * gun,
-                                        bot.actual_speed + 10, bot.angle,
-                                        bot.damage, red_blast, bot))
+            if not bot.dead:
+                bot.shot = time()
+                if bot.guns is None:
+                    shoots.append(Shoot(bot.x, bot.y, bot.actual_speed + 10, bot.angle,
+                                        bot.damage, red_blast, fighter))
+                else:
+                    for gun in bot.guns:
+                        nr = bot.guns.index(gun)
+                        shoots.append(Shoot(bot.x - sin(radians(bot.angle+90)) * gun,
+                                            bot.y - cos(radians(bot.angle+90)) * gun,
+                                            bot.actual_speed + 10, bot.angle,
+                                            bot.damage, red_blast, bot))
+
     for bot in bots:
         if bot.hp <= 0:
-            bots.remove(bot)
-            fighter.xp += 50
-            break
+            if not bot.dead:
+                bot.death_time = time()+2
+                bot.dead = True
+            else:
+                if time() >= bot.death_time:
+                    bots.remove(bot)
+                    fighter.xp += 50
+                    break
+                else:
+                    flame = pg.image.load("fireball.png")
+                    flame = pg.transform.scale(flame, (100, 100))
+                    screen.blit(flame, (bot.x-flame.get_width()/2, bot.y-flame.get_height()/2))
 
     if time() <= fighter.flamethrower:
         flamethrower(fighter, fighter.speed+3, chance=8, spread=4)
