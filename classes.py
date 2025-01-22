@@ -36,14 +36,13 @@ if settings["display"]["size"] == "FULLSCREEN":
 else:
     pg.init()
     screen = pg.display.set_mode((tuple(map(int, re.findall(r'\d+', settings["display"]["size"])))))
-pg.init()
 
 pg.init()
 #screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
 x_max, y_max = screen.get_size()
 pg.key.set_repeat(20, 20)
 pg.joystick.init()
-controllers = pg.joystick.get_count()
+controllers = pg.joystick.get_count()-3
 if controllers > 0:
     controller = pg.joystick.Joystick(0)
     controller.init()
@@ -264,114 +263,107 @@ class Ship(pg.sprite.Sprite):
         self.x -= self.x_speed
         self.y -= self.y_speed
 
-        """
-        if time() >= self.dodge_time+0.1:
-            self.dodge_ready = False
-        if not self.control:
-            if time() >= self.control_time:
-                self.control = True
-        if self.left_dodge:
-            self.x -= sin(radians(self.angle + 90)) * self.speed * 2
-            self.y -= cos(radians(self.angle + 90)) * self.speed * 2
-        if self.right_dodge:
-            self.x -= sin(radians(self.angle - 90)) * self.speed * 2
-            self.y -= cos(radians(self.angle - 90)) * self.speed * 2
-        if self.left:
-            if self.dodge:
-                self.x -= sin(radians(self.angle+90))*self.speed*2
-                self.y -= cos(radians(self.angle+90))*self.speed*2
+        if controllers > 0:
+            if self.x <= 0:
+                self.x = 0
+                self.minus_shield(0.05 * timeout)
+                if controller is not None:
+                    if not vibrating:
+                        controller.rumble(0, 1, 0)
+                        vibrating = True
+            if self.x >= x_max:
+                self.x = x_max
+                self.minus_shield(0.05 * timeout)
+                if controller is not None:
+                    if not vibrating:
+                        controller.rumble(0, 1, 0)
+                        vibrating = True
+            if self.y <= 0:
+                self.y = 0
+                self.minus_shield(0.05 * timeout)
+                if controller is not None:
+                    if not vibrating:
+                        controller.rumble(0, 1, 0)
+                        vibrating = True
+            if self.y >= y_max:
+                self.y = y_max
+                self.minus_shield(0.05 * timeout)
+                if controller is not None:
+                    if not vibrating:
+                        controller.rumble(0, 1, 0)
+                        vibrating = True
             else:
-                self.angle += self.agility
-        if self.right:
-            if self.dodge:
-                self.x -= sin(radians(self.angle-90))*self.speed*2
-                self.y -= cos(radians(self.angle-90))*self.speed*2
-            else:
-                self.angle -= self.agility
-        if self.angle >= 360:
-            self.angle -= 360
-        elif self.angle < 0:
-            self.angle += 360
-        """
-        self.image = pg.transform.rotate(self.org_image, self.angle)
-        self.actual_size = [self.image.get_width(), self.image.get_height()]
-        """
-        """
-        """
-        if not self.brake:
-            if self.glide:
-                self.actual_speed += 0.01
-            else:
-                if self.actual_speed > self.speed:
-                    self.actual_speed -= 0.02
+                vibrating = False
+            if self.shield < 0:
+                self.shield = 0
+            if time() >= self.damage_timeout + 5:
+                if self.shield < self.max_shield:
+                    self.shield += 0.05 * timeout
                 else:
+                    self.shield = self.max_shield
+        else:
+            if time() >= self.dodge_time+0.1:
+                self.dodge_ready = False
+            if not self.control:
+                if time() >= self.control_time:
+                    self.control = True
+            if self.left_dodge:
+                self.x -= sin(radians(self.angle + 90)) * self.speed * 2
+                self.y -= cos(radians(self.angle + 90)) * self.speed * 2
+            if self.right_dodge:
+                self.x -= sin(radians(self.angle - 90)) * self.speed * 2
+                self.y -= cos(radians(self.angle - 90)) * self.speed * 2
+            if self.left:
+                if self.dodge:
+                    self.x -= sin(radians(self.angle+90))*self.speed*2
+                    self.y -= cos(radians(self.angle+90))*self.speed*2
+                else:
+                    self.angle += self.agility
+            if self.right:
+                if self.dodge:
+                    self.x -= sin(radians(self.angle-90))*self.speed*2
+                    self.y -= cos(radians(self.angle-90))*self.speed*2
+                else:
+                    self.angle -= self.agility
+            if self.angle >= 360:
+                self.angle -= 360
+            elif self.angle < 0:
+                self.angle += 360
+            self.image = pg.transform.rotate(self.org_image, self.angle)
+            self.actual_size = [self.image.get_width(), self.image.get_height()]
+            if not self.brake:
+                if self.glide:
+                    self.actual_speed += 0.01
+                else:
+                    if self.actual_speed > self.speed:
+                        self.actual_speed -= 0.02
+                    else:
+                        self.actual_speed = self.speed
+            else:
+                self.actual_speed = 0
+
+            if not self.brake:
+                if self.glide:
+                    self.x_speed += sin(radians(self.angle))*self.actual_speed/100*timeout
+                    self.y_speed += cos(radians(self.angle))*self.actual_speed/100*timeout
+                else:
+                    x_speed_before = self.x_speed
+                    y_speed_before = self.y_speed
+                    self.x_speed = abs(self.x_speed) - abs(self.x_speed / 100)
+                    self.y_speed = abs(self.y_speed) - abs(self.y_speed / 100)
+                    if x_speed_before < 0:
+                        self.x_speed = -self.x_speed
+                    if y_speed_before < 0:
+                        self.y_speed = -self.y_speed
                     self.actual_speed = self.speed
-        else:
-            self.actual_speed = 0
-        """
-        """
-
-        if not self.brake:
-            if self.glide:
-                self.x_speed += sin(radians(self.angle))*self.actual_speed/100*timeout
-                self.y_speed += cos(radians(self.angle))*self.actual_speed/100*timeout
             else:
-                x_speed_before = self.x_speed
-                y_speed_before = self.y_speed
-                self.x_speed = abs(self.x_speed) - abs(self.x_speed / 100)
-                self.y_speed = abs(self.y_speed) - abs(self.y_speed / 100)
-                if x_speed_before < 0:
-                    self.x_speed = -self.x_speed
-                if y_speed_before < 0:
-                    self.y_speed = -self.y_speed
-                self.actual_speed = self.speed
-        else:
-            self.actual_speed = 0
+                self.actual_speed = 0
 
-        if (not self.dodge) and (not self.left_dodge) and (not self.right_dodge):
-            self.x -= sin(radians(self.angle))*self.actual_speed*timeout
-            self.y -= cos(radians(self.angle))*self.actual_speed*timeout
-            self.x -= self.x_speed
-            self.y -= self.y_speed
-        """
-
-        if self.x <= 0:
-            self.x = 0
-            self.minus_shield(0.05 * timeout)
-            if controller is not None:
-                if not vibrating:
-                    controller.rumble(0, 1, 0)
-                    vibrating = True
-        if self.x >= x_max:
-            self.x = x_max
-            self.minus_shield(0.05 * timeout)
-            if controller is not None:
-                if not vibrating:
-                    controller.rumble(0, 1, 0)
-                    vibrating = True
-        if self.y <= 0:
-            self.y = 0
-            self.minus_shield(0.05 * timeout)
-            if controller is not None:
-                if not vibrating:
-                    controller.rumble(0, 1, 0)
-                    vibrating = True
-        if self.y >= y_max:
-            self.y = y_max
-            self.minus_shield(0.05 * timeout)
-            if controller is not None:
-                if not vibrating:
-                    controller.rumble(0, 1, 0)
-                    vibrating = True
-        else:
-            vibrating = False
-        if self.shield < 0:
-            self.shield = 0
-        if time() >= self.damage_timeout + 5:
-            if self.shield < self.max_shield:
-                self.shield += 0.05 * timeout
-            else:
-                self.shield = self.max_shield
+            if (not self.dodge) and (not self.left_dodge) and (not self.right_dodge):
+                self.x -= sin(radians(self.angle))*self.actual_speed*timeout
+                self.y -= cos(radians(self.angle))*self.actual_speed*timeout
+                self.x -= self.x_speed
+                self.y -= self.y_speed
 
 
 class Bot(Ship):
@@ -379,6 +371,7 @@ class Bot(Ship):
         super().__init__(x=x, y=y, speed=x_max/30000, agility=0.4, fire_rate=0.4, hp=hp, cooldown=5, damage=damage,
                          size=x_max/75, image=image, guns=[-x_max/100, x_max/100])
         self.rect_color = (255, 255, 255)
+        self.dead = False
 
     def attack(self, target, obstacles, mode):
         self.left_dodge = False
