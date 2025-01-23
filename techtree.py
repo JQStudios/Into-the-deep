@@ -11,7 +11,23 @@ yfieldmax = y_max
 
 def treeing():
     used = True
+    ships = [XWing(xwingpng, None, 0), Bomber(bomberpng, None, 0)]
     while used:
+        for event in pg.event.get():
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
+                    used = False
+            if event.type == pg.MOUSEBUTTONUP:
+                for ship in ships:
+                    if in_rect(pg.mouse.get_pos(),
+                               [ship.x-ship.image.get_width()/2, ship.y-ship.image.get_height()/2,
+                                ship.x+ship.image.get_width()/2, ship.y+ship.image.get_height()/2]):
+                        if ship.own:
+                            print("play")
+                        elif ship.buy:
+                            print("buy")
+
+
         try:
             with open('data.json') as f:
                 data = json.load(f)
@@ -21,7 +37,6 @@ def treeing():
                 json.dump(data, outfile)
                 print("File created")
 
-        ships = [XWing(xwingpng, None, 0), Bomber(bomberpng, None, 0)]
         for xp in data[1]:
             for ship in ships:
                 if xp[0] == ship.name:
@@ -46,4 +61,4 @@ def treeing():
                 color = (0, 255, 0)
             pg.draw.rect(screen, color, [ship.x-ship.image.get_width()/2, ship.y-ship.image.get_height()/2,
                                          ship.image.get_width(), ship.image.get_height()], 2)
-            pg.display.update()
+        pg.display.update()

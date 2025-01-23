@@ -45,13 +45,6 @@ def minus_shield(obj, damage):
             obj.hp -= damage
 
 
-def in_rect(pos, rect):
-    if (rect[0] <= pos[0] <= rect[2]) and (rect[1] <= pos[1] <= rect[3]):
-        return True
-    else:
-        return False
-
-
 def control_overlaps(obj, obj1):
     if type(obj) is not list:
         rect = [obj.x-obj.hitbox/2, obj.y-obj.hitbox/2, obj.x+obj.hitbox/2, obj.y+obj.hitbox/2]
