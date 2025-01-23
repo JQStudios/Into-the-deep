@@ -1,5 +1,6 @@
 import pygame as pg
 from classes import screen, x_max, y_max, settings, save_settings
+from main import PlayMission
 import sys, subprocess
 import time
 from techtree import *
@@ -193,7 +194,9 @@ def execButtonAction(action, button_x, button_y):
         treeing()
     if action=="play":
         print("play")
-        subprocess.run(['python', 'dashboard.py'])        
+        subprocess.run(['python', 'dashboard.py'])
+    elif action == "missions":
+        PlayMission("x_wing", None, 10, "asfd")
     elif action=="options":
         MenuDisplayID = 1
     elif action=="main_menu":
