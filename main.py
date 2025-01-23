@@ -3,9 +3,9 @@ from abilities import *
 from techtree import *
 
 
-
 def PlayMission(ship_class, fighters, botcount, mode):
     currency = data[0]
+    vibratetil = 0
     asteroidpng = pg.image.load("asteroid.png")
     dronepng = pg.image.load("drone.png")
     if ship_class == "x_wing":
@@ -422,9 +422,9 @@ def PlayMission(ship_class, fighters, botcount, mode):
         if time() <= fighter.flamethrower:
             flamethrower(fighter, fighter.speed+3, chance=8, spread=4)
         fighter.run_move(controller)
-        screen.blit(fighter.image, (fighter.x-fighter.actual_size[0]/2, fighter.y-fighter.actual_size[1]/2))
-        pg.draw.rect(screen, fighter.rect_color, [fighter.x - fighter.hitbox / 2, fighter.y - fighter.hitbox / 2,
-                                                  fighter.hitbox, fighter.hitbox], 2)
+        screen.blit(fighter.image, (int(fighter.x-fighter.actual_size/2), int(fighter.y-fighter.actual_size/2)))
+        pg.draw.rect(screen, fighter.rect_color, [int(fighter.x - fighter.hitbox / 2), int(fighter.y - fighter.hitbox / 2),
+                                                  int(fighter.hitbox), int(fighter.hitbox)], 2)
         if fighter.rect_color == (0, 0, 0):
             length = fighter.shield*((fighter.hitbox*4)/fighter.max_shield)
             if length > fighter.hitbox:
