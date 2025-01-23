@@ -1,17 +1,17 @@
 from classes import *
 import json
 
+data = [0, []]
+level = 0
+xwingpng = pg.image.load("xwing.png")
+bomberpng = pg.image.load("bomber.png")
+xfieldmax = x_max
+yfieldmax = y_max
+
 
 def treeing():
     used = True
     while used:
-        data = [0, []]
-        level = 0
-        xwingpng = pg.image.load("xwing.png")
-        bomberpng = pg.image.load("bomber.png")
-        xfieldmax = 0
-        yfieldmax = 0
-
         try:
             with open('data.json') as f:
                 data = json.load(f)
