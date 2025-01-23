@@ -27,7 +27,7 @@ def treeing():
                 if xp[0] == ship.name:
                     ship.xp = xp[1]
         for ship in ships:
-            ship.x, ship.y = randint(0, x_max), randint(0, y_max)
+            ship.x, ship.y = ship.shop_x*xfieldmax, ship.shop_y*yfieldmax
         screen.fill((0, 0, 0))
         for ship in ships:
             for ship1 in ships:
@@ -38,8 +38,7 @@ def treeing():
                 if ship.root.xp >= 1000:
                     if data[0] >= ship.price:
                         ship.buy = True
-            screen.blit(ship.image, (ship.shop_x*xfieldmax-ship.image.get_width()/2,
-                                     ship.shop_y*yfieldmax-ship.image.get_height()/2))
+            screen.blit(ship.image, (ship.x-ship.image.get_width()/2, ship.y-ship.image.get_height()/2))
             color = (100, 100, 100)
             if ship.buy:
                 color = (200, 200, 200)
