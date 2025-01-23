@@ -2,6 +2,7 @@ import pygame as pg
 from classes import screen, x_max, y_max, settings, save_settings
 import sys, subprocess
 import time
+from techtree import *
 
 
 print("menu.py imported")
@@ -88,7 +89,7 @@ class Message:
         self.screen = screen
         self.duration = duration
         self.speed = speed
-        self.start_time = time.time()
+        self.start_time = time()
         self.text_surface = font.render(self.text, True, (255, 255, 255))
         self.text_rect = self.text_surface.get_rect(center=(screen.get_width() // 2, -self.text_surface.get_height()))
         self.state = "sliding_in"
@@ -99,7 +100,7 @@ class Message:
         return 1 - pow(1 - t, 3)
 
     def update(self):
-        current_time = time.time()
+        current_time = time()
         elapsed_time = current_time - self.start_time
 
         if self.state == "sliding_in":
@@ -188,6 +189,8 @@ def CheckMenu(buttons, mousepos=[0,0]):
 
 def execButtonAction(action, button_x, button_y):
     global MenuDisplayID, caller_level1_x, caller_level1_y, caller_level2_x, caller_level2_y, NewMessage
+    if action == "techtree":
+        treeing()
     if action=="play":
         print("play")
         subprocess.run(['python', 'dashboard.py'])        

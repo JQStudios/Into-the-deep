@@ -441,6 +441,8 @@ class XWing(Ship):
         self.own = True
         self.buy = False
         self.price = 1000
+        self.shop_x = 0.5
+        self.shop_y = 0.1
 
 
 class Bomber(Ship):
@@ -459,3 +461,5 @@ class Bomber(Ship):
         self.own = False
         self.buy = False
         self.price = 2000
+        self.shop_x = 0.5
+        self.shop_y = 0.1
