@@ -8,6 +8,14 @@ import re
 
 SETTINGS_FILE = "settings.json"
 
+
+def in_rect(pos, rect):
+    if (rect[0] <= pos[0] <= rect[2]) and (rect[1] <= pos[1] <= rect[3]):
+        return True
+    else:
+        return False
+
+
 def load_settings():
     try:
         with open(SETTINGS_FILE, "r") as file:
@@ -462,4 +470,4 @@ class Bomber(Ship):
         self.buy = False
         self.price = 2000
         self.shop_x = 0.5
-        self.shop_y = 0.1
+        self.shop_y = 0.2
