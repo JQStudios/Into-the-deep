@@ -1,7 +1,10 @@
 import pygame as pg
 from classes import screen, x_max, y_max, settings, save_settings
+from main import PlayMission
 import sys, subprocess
 import time
+from techtree import *
+import random
 
 
 print("menu.py imported")
@@ -28,6 +31,8 @@ if 'caller_level2_x' not in globals():
     caller_level2_x = 0
 if 'caller_level2_y' not in globals():
     caller_level2_y = 0
+if 'Missions' not in globals():
+    Missions = []
 pg.font.init() 
 font = pg.font.Font("assets/fonts/Starjedi.ttf", 22)
 DescriptionFont = pg.font.Font("assets/fonts/Starjedi.ttf", 12)
@@ -70,17 +75,20 @@ class button(pg.sprite.Sprite):
             else:
                 ScaledImageHover = pg.transform.scale(MissionImageHover, (self.size_x, self.size_y))
                 screen.blit(ScaledImageHover, (x, y))
-            name, description = self.DisplayText.split(":", 1)
-            name, description = name.strip(), description.strip()
+# Title
+            ND = self.DisplayText.split(";", 1)
+            name, description = ND[0].strip(), ND[1].strip()
             text_surface = font.render(name, True, (0, 0, 0))
-            text_rect = text_surface.get_rect(center=(x + self.size_x // 2, y + self.size_y // 2 - self.size_y // 20))
+            text_rect = text_surface.get_rect(topleft=(x+self.size_x/8,y + self.size_y/7))
             screen.blit(text_surface, text_rect)
-            wrapped_lines = wrap_text(description, DescriptionFont, self.size_x)
-            y_offset = 50
+# Descrition
+            wrapped_lines = wrap_text(description, DescriptionFont, self.size_x/1.3, (0,0,0))
+            y_offset = y + self.size_y // 3.3
             for line in wrapped_lines:
-                line_surface = DescriptionFont.render(line, True, (255,255,255))
-                screen.blit(line_surface, (50, y_offset))
-                y_offset += line_surface.get_height() + 5
+                line_surface = DescriptionFont.render(line, True, (0, 0, 0))
+                line_rect = line_surface.get_rect(topleft=(x+x/2.4, y_offset))
+                screen.blit(line_surface, line_rect)
+                y_offset += line_surface.get_height()/1.7
 
 class Message:
     def __init__(self, text, screen, color = (0, 0, 0), duration=0.2, speed=50):
@@ -88,7 +96,7 @@ class Message:
         self.screen = screen
         self.duration = duration
         self.speed = speed
-        self.start_time = time.time()
+        self.start_time = time()
         self.text_surface = font.render(self.text, True, (255, 255, 255))
         self.text_rect = self.text_surface.get_rect(center=(screen.get_width() // 2, -self.text_surface.get_height()))
         self.state = "sliding_in"
@@ -99,7 +107,7 @@ class Message:
         return 1 - pow(1 - t, 3)
 
     def update(self):
-        current_time = time.time()
+        current_time = time()
         elapsed_time = current_time - self.start_time
 
         if self.state == "sliding_in":
@@ -187,10 +195,16 @@ def CheckMenu(buttons, mousepos=[0,0]):
         i+=1
 
 def execButtonAction(action, button_x, button_y):
-    global MenuDisplayID, caller_level1_x, caller_level1_y, caller_level2_x, caller_level2_y, NewMessage
+    global MenuDisplayID, caller_level1_x, caller_level1_y, caller_level2_x, caller_level2_y, NewMessage, Missions
+    if action == "techtree":
+        treeing()
     if action=="play":
         print("play")
-        subprocess.run(['python', 'dashboard.py'])        
+        subprocess.run(['python', 'dashboard.py'])
+    elif action == "missions":
+        #PlayMission("x_wing", None, 10, "asfd")
+        Missions = SelectMissions()
+        MenuDisplayID=10
     elif action=="options":
         MenuDisplayID = 1
     elif action=="main_menu":
@@ -249,6 +263,10 @@ def updateMenus(buttons):
         newlocalbuttons = CreateMenu(caller_level2_x + x_max/5, caller_level2_y, 200, 150, 3, y_max/6, 5, "v", "MenuButton", pg.mouse.get_pos(), ["800x600", "1280x720", "1920x1080"], ["800x600", "1280x720", "1920x1080"], oldlocalbuttons)
         for button in newlocalbuttons:
             localbuttons.append(button)
+    if MenuDisplayID == 10:
+        newlocalbuttons = CreateMenu(x_max/15, y_max/20, 300, 225, 3, y_max/4, 10, "v", "MissionButton", pg.mouse.get_pos(), [f"{Missions[0]}", f"{Missions[1]}", f"{Missions[2]}"], [f"{Missions[0]["MT"]}; {Missions[0]["MD"]}", f"{Missions[1]["MT"]}; {Missions[1]["MD"]}", f"{Missions[2]["MT"]}; {Missions[2]["MD"]}"], oldlocalbuttons)
+        for button in newlocalbuttons:
+            localbuttons.append(button)
     return localbuttons
 
 # Message functions
@@ -294,7 +312,7 @@ def button_dynamic_size(original_width, original_height, y, size_x=None):
     print(f"dinamicly changed button size to {aspect_ratio}, new dimensionens are {newsize_x}x{size_y}")
     return newsize_x, size_y
 
-def wrap_text(text, font, max_width):
+def wrap_text(text, font, max_width, text_color):
     words = text.split(' ')  # Split text into words
     lines = []
     current_line = []
@@ -313,3 +331,24 @@ def wrap_text(text, font, max_width):
         lines.append(' '.join(current_line))
 
     return lines
+
+# Select Missions
+def SelectMissions():
+# MissionType = MT, MissionDescription = MD, BotCount = BC, Difficulty = DC, Reward = RW
+    MissionTypes=["destroy", "battle royal"]
+    MissionDescriptions=["destroy every enemy target given by an operator.", "be the last one to survive in an every body against every body situation"]
+    i = 0
+    Missions = []
+    while i < 3:
+        RandomMission=random.randint(0, (len(MissionTypes)-1))
+        Missions.append(
+            {
+                "MT": MissionTypes[RandomMission],
+                "MD": MissionDescriptions[RandomMission],
+                "BC": 10,
+                "DC": 100,
+                "RW": "500 exp"
+            }
+        )
+        i += 1
+    return Missions
