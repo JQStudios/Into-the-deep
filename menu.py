@@ -6,6 +6,8 @@ import time
 from techtree import *
 import random
 import ast
+from classes import FULLSCREEN
+
 
 print("menu.py imported")
 ImageNormal = pg.image.load("ButtonNormal2.png")
@@ -82,11 +84,16 @@ class button(pg.sprite.Sprite):
             text_rect = text_surface.get_rect(topleft=(x+self.size_x/8,y + self.size_y/7))
             screen.blit(text_surface, text_rect)
 # Descrition
+            
             wrapped_lines = wrap_text(description, DescriptionFont, self.size_x/1.3, (0,0,0))
             y_offset = y + self.size_y // 3.3
             for line in wrapped_lines:
                 line_surface = DescriptionFont.render(line, True, (0, 0, 0))
-                line_rect = line_surface.get_rect(topleft=(x+x/2.4, y_offset))
+                if FULLSCREEN:
+                    print("fullscreen")
+                    line_rect = line_surface.get_rect(topleft=(x+x/2.4, y_offset))
+                else:
+                    line_rect = line_surface.get_rect(topleft=(x+x/2.4, y_offset))
                 screen.blit(line_surface, line_rect)
                 y_offset += line_surface.get_height()/1.7
 

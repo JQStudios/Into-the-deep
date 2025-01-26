@@ -8,7 +8,7 @@ import re
 
 SETTINGS_FILE = "settings.json"
 
-
+FULLSCREEN = False
 def in_rect(pos, rect):
     if (rect[0] <= pos[0] <= rect[2]) and (rect[1] <= pos[1] <= rect[3]):
         return True
@@ -40,6 +40,7 @@ settings = load_settings()
 
 if settings["display"]["size"] == "FULLSCREEN":
     pg.init()
+    FULLSCREEN = True
     screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
 else:
     pg.init()
@@ -436,7 +437,7 @@ class Bot(Ship):
 
 class XWing(Ship):
     def __init__(self, image, abilities=None, xp=0):
-        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/250, agility=1, fire_rate=0.5, hp=100,
+        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/1000, agility=1, fire_rate=0.5, hp=100,
                          cooldown=5, damage=5, size=x_max/50, image=image, guns=[-x_max/100, x_max/100], xp=xp)
         if abilities is None:
             abilities = ["flamethrower"]
