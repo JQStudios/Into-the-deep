@@ -422,7 +422,11 @@ def PlayMission(ship_class, fighters, botcount, mode):
         if time() <= fighter.flamethrower:
             flamethrower(fighter, fighter.speed+3, chance=8, spread=4)
         fighter.run_move(controller)
-        screen.blit(fighter.image, (int(fighter.x-fighter.actual_size/2), int(fighter.y-fighter.actual_size/2)))
+        if controllers > 0:
+            screen.blit(fighter.image, (int(fighter.x-fighter.actual_size/2), int(fighter.y-fighter.actual_size/2)))
+        else:
+            screen.blit(fighter.image,
+                        (int(fighter.x - fighter.actual_size[0] / 2), int(fighter.y - fighter.actual_size[1] / 2)))
         pg.draw.rect(screen, fighter.rect_color, [int(fighter.x - fighter.hitbox / 2), int(fighter.y - fighter.hitbox / 2),
                                                   int(fighter.hitbox), int(fighter.hitbox)], 2)
         if fighter.rect_color == (0, 0, 0):
@@ -487,6 +491,7 @@ def PlayMission(ship_class, fighters, botcount, mode):
             pg.display.update()
             pg.time.delay(1000)
             fighter.xp += 100
+            currency += 1000
             running = False
 
         value = 1
