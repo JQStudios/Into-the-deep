@@ -50,7 +50,7 @@ pg.init()
 x_max, y_max = screen.get_size()
 pg.key.set_repeat(20, 20)
 pg.joystick.init()
-controllers = pg.joystick.get_count()-33324
+controllers = pg.joystick.get_count()
 if controllers > 0:
     controller = pg.joystick.Joystick(0)
     controller.init()
@@ -436,7 +436,7 @@ class Bot(Ship):
 
 class XWing(Ship):
     def __init__(self, image, abilities=None, xp=0):
-        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/1500, agility=1, fire_rate=0.5, hp=100,
+        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/250, agility=1, fire_rate=0.5, hp=100,
                          cooldown=5, damage=5, size=x_max/50, image=image, guns=[-x_max/100, x_max/100], xp=xp)
         if abilities is None:
             abilities = ["flamethrower"]
