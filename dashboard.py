@@ -14,9 +14,7 @@ size_x, size_y =  button_dynamic_size(100, 100, y_max - y_max / 6, 200)
 while running:
     buttons = []
     screen.fill((0, 0, 0))
-    buttons = CreateMenu(x_max/15, y_max/10, 200, 150, 4, y_max/6, 0, "v", "MenuButton", pg.mouse.get_pos(), ["missions", "options", "credits", "quit"], ["missions", "options", "credits", "quit"], buttons)
-    #buttons = CreateMenu(x_max/15, y_max/10, 200, 150, 4, y_max/6, 0, "v", "MissionButton", pg.mouse.get_pos(), ["missions: Select a Mission try to select mission you really like because they are really really hard", "options : dd d dd d dd d dd dd ", "credits : dnd d dd d dd d d dd d dd ", "quit : sassa"], ["missions", "options", "credits", "quit"], buttons)
-
+    buttons = CreateMenu(x_max/15, y_max/10, 200, 150, 4, y_max/6, 0, "v", "MenuButton", pg.mouse.get_pos(), ["missions", "options", "techtree", "quit"], ["missions", "options", "techtree", "quit"], buttons)
     if buttons != None:
         pg.draw.rect(screen, (0,0,0), (x_max/3, y_max/8, x_max/2, y_max/1.5))
     if buttons == None:
