@@ -309,6 +309,8 @@ class Ship(pg.sprite.Sprite):
                     self.shield += 0.05 * timeout
                 else:
                     self.shield = self.max_shield
+            self.image = pg.transform.rotate(self.org_image, self.angle)
+            self.actual_size = [self.image.get_width(), self.image.get_height()]
         else:
             if time() >= self.dodge_time+0.1:
                 self.dodge_ready = False
@@ -436,7 +438,7 @@ class Bot(Ship):
 
 class XWing(Ship):
     def __init__(self, image, abilities=None, xp=0):
-        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/250, agility=1, fire_rate=0.5, hp=100,
+        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/1000, agility=1, fire_rate=0.5, hp=100,
                          cooldown=5, damage=5, size=x_max/50, image=image, guns=[-x_max/100, x_max/100], xp=xp)
         if abilities is None:
             abilities = ["flamethrower"]
