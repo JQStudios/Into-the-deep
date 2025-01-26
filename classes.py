@@ -50,7 +50,7 @@ pg.init()
 x_max, y_max = screen.get_size()
 pg.key.set_repeat(20, 20)
 pg.joystick.init()
-controllers = pg.joystick.get_count()
+controllers = pg.joystick.get_count()-33324
 if controllers > 0:
     controller = pg.joystick.Joystick(0)
     controller.init()

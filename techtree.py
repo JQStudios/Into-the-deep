@@ -7,35 +7,11 @@ xwingpng = pg.image.load("xwing.png")
 bomberpng = pg.image.load("bomber.png")
 xfieldmax = x_max
 yfieldmax = y_max
-try:
-    with open('data.json') as f:
-        data = json.load(f)
-        print(data)
-except:
-    with open("data.json", "w") as outfile:
-        json.dump(data, outfile)
-        print("File created")
 
 
 def treeing():
     used = True
     ships = [XWing(xwingpng, None, 0), Bomber(bomberpng, None, 0)]
-    try:
-        with open('data.json') as f:
-            data = json.load(f)
-            print(data)
-    except:
-        with open("data.json", "w") as outfile:
-            json.dump(data, outfile)
-            print("File created")
-
-    for xp in data[1]:
-        for ship in ships:
-            if xp[0] == ship.name:
-                ship.xp = xp[1]
-    for ship in ships:
-        ship.x, ship.y = ship.shop_x * xfieldmax, ship.shop_y * yfieldmax
-
     while used:
         for event in pg.event.get():
             if event.type == pg.KEYDOWN:
@@ -51,6 +27,22 @@ def treeing():
                         elif ship.buy:
                             print("buy")
 
+
+        try:
+            with open('data.json') as f:
+                data = json.load(f)
+                print(data)
+        except:
+            with open("data.json", "w") as outfile:
+                json.dump(data, outfile)
+                print("File created")
+
+        for xp in data[1]:
+            for ship in ships:
+                if xp[0] == ship.name:
+                    ship.xp = xp[1]
+        for ship in ships:
+            ship.x, ship.y = ship.shop_x*xfieldmax, ship.shop_y*yfieldmax
         screen.fill((0, 0, 0))
         for ship in ships:
             for ship1 in ships:
