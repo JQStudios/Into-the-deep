@@ -1,6 +1,6 @@
 import pygame as pg
 from classes import screen, x_max, y_max, settings, save_settings
-from main import PlayMission
+from mission import PlayMission
 import sys, subprocess
 import time
 from techtree import *
