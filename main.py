@@ -20,12 +20,12 @@ def PlayMission(ship_class, fighters, botcount, mode):
     for nr in range(0, 16):
         objects.append(Object(randint(0, x_max), randint(0, y_max), asteroidpng, x_max/27.5))
     bots = []
-    if mode == "battle royal":
+    if mode == "battle_royal":
         botcount = 4
     else:
         botcount = 8
     for nr in range(0, botcount+level):
-        if mode == "battle royal":
+        if mode == "battle_royal":
             hp = 100
             damage = 5
         else:
@@ -365,7 +365,7 @@ def PlayMission(ship_class, fighters, botcount, mode):
                 removables = []
 
         for bot in bots:
-            if mode == "battle royal":
+            if mode == "battle_royal":
                 enemies = [(fighter, dist((fighter.x, fighter.y), (bot.x, bot.y)))]
                 for bot1 in bots:
                     if bot1 != bot:
@@ -422,7 +422,11 @@ def PlayMission(ship_class, fighters, botcount, mode):
         if time() <= fighter.flamethrower:
             flamethrower(fighter, fighter.speed+3, chance=8, spread=4)
         fighter.run_move(controller)
-        screen.blit(fighter.image, (int(fighter.x-fighter.actual_size/2), int(fighter.y-fighter.actual_size/2)))
+        if controllers > 0:
+            screen.blit(fighter.image, (int(fighter.x-fighter.actual_size/2), int(fighter.y-fighter.actual_size/2)))
+        else:
+            screen.blit(fighter.image,
+                        (int(fighter.x - fighter.actual_size[0] / 2), int(fighter.y - fighter.actual_size[1] / 2)))
         pg.draw.rect(screen, fighter.rect_color, [int(fighter.x - fighter.hitbox / 2), int(fighter.y - fighter.hitbox / 2),
                                                   int(fighter.hitbox), int(fighter.hitbox)], 2)
         if fighter.rect_color == (0, 0, 0):
@@ -487,6 +491,7 @@ def PlayMission(ship_class, fighters, botcount, mode):
             pg.display.update()
             pg.time.delay(1000)
             fighter.xp += 100
+            currency += 1000
             running = False
 
         value = 1
