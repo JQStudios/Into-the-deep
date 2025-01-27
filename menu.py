@@ -269,7 +269,7 @@ def updateMenus(buttons):
         for button in newlocalbuttons:
             localbuttons.append(button)
     if MenuDisplayID == 10:
-        newlocalbuttons = CreateMenu(x_max/15, y_max/20, 300, 225, 3, y_max/4, 10, "v", "MissionButton", pg.mouse.get_pos(), [f"StartMission; {Missions[0]}", f"StartMission; {Missions[1]}", f"StartMission; {Missions[2]}"], [f"{Missions[0]["MT"]}; {Missions[0]["MD"]}", f"{Missions[1]["MT"]}; {Missions[1]["MD"]}", f"{Missions[2]["MT"]}; {Missions[2]["MD"]}"], oldlocalbuttons)
+        newlocalbuttons = CreateMenu(x_max/15, y_max/20, 300, 225, 3, y_max/4, 10, "v", "MissionButton", pg.mouse.get_pos(), [f"StartMission; {Missions[0]}", f"StartMission; {Missions[1]}", f"StartMission; {Missions[2]}"], [f"{Missions[0]['MT']}; {Missions[0]['MD']}", f"{Missions[1]['MT']}; {Missions[1]['MD']}", f"{Missions[2]['MT']}; {Missions[2]['MD']}"], oldlocalbuttons)
         for button in newlocalbuttons:
             localbuttons.append(button)
     return localbuttons
