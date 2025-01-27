@@ -375,6 +375,19 @@ class Ship(pg.sprite.Sprite):
                 self.x -= self.x_speed
                 self.y -= self.y_speed
 
+            if self.x <= 0:
+                self.x = 0
+                self.minus_shield(0.05 * timeout)
+            if self.x >= x_max:
+                self.x = x_max
+                self.minus_shield(0.05 * timeout)
+            if self.y <= 0:
+                self.y = 0
+                self.minus_shield(0.05 * timeout)
+            if self.y >= y_max:
+                self.y = y_max
+                self.minus_shield(0.05 * timeout)
+
 
 class Bot(Ship):
     def __init__(self, x, y, image, hp=35, damage=1):
