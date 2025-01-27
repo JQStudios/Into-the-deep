@@ -128,16 +128,9 @@ def PlayMission(ship_class, fighters, botcount, mode):
 
 
     def controller_check(obj, controller_obj, enemies):
-        """
-        turn = controller_obj.get_axis(2)
-        if (turn != obj.og_turn) and (abs(turn) >= 0.1):
-            obj.og_turn = turn
-        if abs(turn) <= 0.05:
-            obj.og_turn = 0
-        obj.angle -= obj.og_turn*obj.agility
-        """
         if abs(controller_obj.get_axis(0)) >= 0.1 or abs(controller_obj.get_axis(1)) >= 0.1:
             obj.angle = get_angle((0, 0), (-controller_obj.get_axis(0), -controller_obj.get_axis(1)))
+            print(obj.angle)
             obj.x_speed = -controller_obj.get_axis(0)*obj.speed
             obj.y_speed = -controller_obj.get_axis(1)*obj.speed
         else:
@@ -165,21 +158,6 @@ def PlayMission(ship_class, fighters, botcount, mode):
                                                 obj.actual_speed + 10, obj.lock_angles[nr],
                                                 obj.damage, red_blast, obj))
                     obj.shot = time()
-        if not controller_obj.get_button(5):
-            obj.let_go_shoot = True
-        if obj.let_go_shoot:
-            if controller_obj.get_button(5):
-                obj.let_go_shoot = False
-                if obj.guns is None:
-                    shoots.append(Shoot(obj.x, obj.y, obj.actual_speed + 10, obj.lock_angle,
-                                        obj.damage, red_blast, obj))
-                else:
-                    for gun in obj.guns:
-                        nr = obj.guns.index(gun)
-                        shoots.append(Shoot(obj.x - sin(radians(obj.angle + 90)) * gun,
-                                            obj.y - cos(radians(obj.angle + 90)) * gun,
-                                            obj.actual_speed + 10, obj.lock_angles[nr],
-                                            obj.damage, red_blast, obj))
         obj.brake = False
         obj.glide = False
         obj.left_dodge = False
@@ -422,11 +400,8 @@ def PlayMission(ship_class, fighters, botcount, mode):
         if time() <= fighter.flamethrower:
             flamethrower(fighter, fighter.speed+3, chance=8, spread=4)
         fighter.run_move(controller)
-        if controllers > 0:
-            screen.blit(fighter.image, (int(fighter.x-fighter.actual_size/2), int(fighter.y-fighter.actual_size/2)))
-        else:
-            screen.blit(fighter.image,
-                        (int(fighter.x - fighter.actual_size[0] / 2), int(fighter.y - fighter.actual_size[1] / 2)))
+        screen.blit(fighter.image,
+                    (int(fighter.x - fighter.actual_size[0] / 2), int(fighter.y - fighter.actual_size[1] / 2)))
         pg.draw.rect(screen, fighter.rect_color, [int(fighter.x - fighter.hitbox / 2), int(fighter.y - fighter.hitbox / 2),
                                                   int(fighter.hitbox), int(fighter.hitbox)], 2)
         if fighter.rect_color == (0, 0, 0):
@@ -517,4 +492,3 @@ def PlayMission(ship_class, fighters, botcount, mode):
     data[0] = currency
     with open("data.json", "w") as outfile:
         json.dump(data, outfile)
-        print("File updated")
