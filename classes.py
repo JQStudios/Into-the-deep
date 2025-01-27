@@ -100,13 +100,13 @@ class Object(pg.sprite.Sprite):
         self.x -= sin(radians(self.angle))*self.speed*timeout
         self.y -= cos(radians(self.angle))*self.speed*timeout
         if self.x > x_max:
-            self.x = 0
+            self.angle += 180
         elif self.x < 0:
-            self.x = x_max
+            self.angle += 180
         if self.y > y_max:
-            self.y = 0
+            self.angle += 180
         elif self.y < 0:
-            self.y = y_max
+            self.angle += 180
 
 
 class Bomb(pg.sprite.Sprite):
