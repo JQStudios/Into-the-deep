@@ -1,13 +1,12 @@
 import pygame as pg
 from classes import screen, x_max, y_max, settings, save_settings
 from mission import PlayMission
+from credits import play_video
 import sys, subprocess
 import time
 from techtree import *
 import random
 import ast
-from classes import FULLSCREEN
-
 
 print("menu.py imported")
 ImageNormal = pg.image.load("ButtonNormal2.png")
@@ -84,15 +83,11 @@ class button(pg.sprite.Sprite):
             text_rect = text_surface.get_rect(topleft=(x+self.size_x/8,y + self.size_y/7))
             screen.blit(text_surface, text_rect)
 # Descrition
-            
             wrapped_lines = wrap_text(description, DescriptionFont, self.size_x/1.3, (0,0,0))
             y_offset = y + self.size_y // 3.3
             for line in wrapped_lines:
                 line_surface = DescriptionFont.render(line, True, (0, 0, 0))
-                if FULLSCREEN:
-                    line_rect = line_surface.get_rect(topleft=(x+x/2.4, y_offset))
-                else:
-                    line_rect = line_surface.get_rect(topleft=(x+x/2.4, y_offset))
+                line_rect = line_surface.get_rect(topleft=(x+x/2.4, y_offset))
                 screen.blit(line_surface, line_rect)
                 y_offset += line_surface.get_height()/1.7
 
@@ -215,10 +210,19 @@ def execButtonAction(action, button_x, button_y):
         MenuDisplayID=10
     elif action=="options":
         MenuDisplayID = 1
+    elif action=="credits":
+        play_video("CreditsAnimation.mp4", x_max, y_max, "Credits")
     elif action=="main_menu":
         MenuDisplayID = 0
     elif action=="quit":
         sys.exit()
+    elif action=="sounds":
+        caller_level1_x, caller_level1_y = button_x, button_y
+        MenuDisplayID = 2
+        if settings["sounds"]["active"] == True:
+            NewMessage = display_message(screen, f"Sounds is currently on", (0, 191, 255))
+        else:
+            NewMessage = display_message(screen, f"Sounds is currently off", (0, 191, 255))
     elif action=="display":
         caller_level1_x, caller_level1_y = button_x, button_y
         MenuDisplayID = 4
@@ -249,6 +253,12 @@ def execButtonAction(action, button_x, button_y):
         settings["display"]["size"] = "1920, 1080"
         save_settings(settings)
         NewMessage = display_message(screen, f"you need to restart your Game to apply the changes made.", (0, 191, 255))
+    elif action=="SoundsOn":
+        settings["sounds"]["active"] = True
+        save_settings(settings)
+    elif action=="SoundsOff":
+        settings["sounds"]["active"] = False
+        save_settings(settings)
     elif MissionSplit[0] == "StartMission":
         Mission = Mission = ast.literal_eval(MissionSplit[1].strip())
         print(Mission)
@@ -263,7 +273,11 @@ def updateMenus(buttons):
         oldlocalbuttons = buttons
     localbuttons = []
     if MenuDisplayID > 0 and MenuDisplayID < 6:
-        newlocalbuttons = CreateMenu(x_max/15, y_max/10, 200, 150, 4, y_max/6, True, "v", "MenuButton", pg.mouse.get_pos(), ["graphics", "controls", "display", "main_menu"], ["graphics", "controls", "display", "main menu"], oldlocalbuttons)
+        newlocalbuttons = CreateMenu(x_max/15, y_max/10, 200, 150, 4, y_max/6, True, "v", "MenuButton", pg.mouse.get_pos(), ["graphics", "sounds", "display", "main_menu"], ["graphics", "sounds", "display", "main menu"], oldlocalbuttons)
+        for button in newlocalbuttons:
+            localbuttons.append(button)
+    if MenuDisplayID == 2:
+        newlocalbuttons = CreateMenu(caller_level1_x + x_max/5, caller_level1_y, 200, 150, 2, y_max/6, True, "v", "MenuButton", pg.mouse.get_pos(), ["SoundsOn", "SoundsOff"], ["on", "off"], oldlocalbuttons)
         for button in newlocalbuttons:
             localbuttons.append(button)
     if MenuDisplayID > 3 and MenuDisplayID < 6:

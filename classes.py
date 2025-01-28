@@ -8,7 +8,7 @@ import re
 
 SETTINGS_FILE = "settings.json"
 
-FULLSCREEN = False
+
 def in_rect(pos, rect):
     if (rect[0] <= pos[0] <= rect[2]) and (rect[1] <= pos[1] <= rect[3]):
         return True
@@ -25,7 +25,10 @@ def load_settings():
         print("Could not find settings file. Creating a new one.")
         default_settings = {
             "display": {
-                "size": "FULLSCREEN",
+                "size": "1280, 720",
+            },
+            "sounds": {
+                "active": True,
             },
         }
         save_settings(default_settings)
@@ -40,7 +43,6 @@ settings = load_settings()
 
 if settings["display"]["size"] == "FULLSCREEN":
     pg.init()
-    FULLSCREEN = True
     screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
 else:
     pg.init()
@@ -101,13 +103,13 @@ class Object(pg.sprite.Sprite):
         self.x -= sin(radians(self.angle))*self.speed*timeout
         self.y -= cos(radians(self.angle))*self.speed*timeout
         if self.x > x_max:
-            self.x = 0
+            self.angle += 180
         elif self.x < 0:
-            self.x = x_max
+            self.angle += 180
         if self.y > y_max:
-            self.y = 0
+            self.angle += 180
         elif self.y < 0:
-            self.y = y_max
+            self.angle += 180
 
 
 class Bomb(pg.sprite.Sprite):
@@ -375,6 +377,19 @@ class Ship(pg.sprite.Sprite):
                 self.y -= cos(radians(self.angle))*self.actual_speed*timeout
                 self.x -= self.x_speed
                 self.y -= self.y_speed
+
+            if self.x <= 0:
+                self.x = 0
+                self.minus_shield(0.05 * timeout)
+            if self.x >= x_max:
+                self.x = x_max
+                self.minus_shield(0.05 * timeout)
+            if self.y <= 0:
+                self.y = 0
+                self.minus_shield(0.05 * timeout)
+            if self.y >= y_max:
+                self.y = y_max
+                self.minus_shield(0.05 * timeout)
 
 
 class Bot(Ship):

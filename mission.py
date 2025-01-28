@@ -2,6 +2,8 @@ from selection import *
 from abilities import *
 from techtree import *
 
+laser = pg.mixer.Sound("retro-laser-1-236669.mp3")
+
 
 def PlayMission(ship_class, fighters, botcount, mode):
     currency = data[0]
@@ -19,6 +21,9 @@ def PlayMission(ship_class, fighters, botcount, mode):
     objects = []
     for nr in range(0, 16):
         objects.append(Object(randint(0, x_max), randint(0, y_max), asteroidpng, x_max/27.5))
+        objects[len(objects)-1].speed = randint(0, 10)
+        objects[len(objects)-1].speed *= 0.01
+        objects[len(objects)-1].angle = randint(0, 359)
     bots = []
     if mode == "battle royal":
         botcount = 4
@@ -149,6 +154,7 @@ def PlayMission(ship_class, fighters, botcount, mode):
                     if obj.guns is None:
                         shoots.append(Shoot(obj.x, obj.y, obj.actual_speed + 10, obj.lock_angle,
                                             obj.damage, red_blast, obj))
+                        pg.mixer.Sound.play(laser)
                     else:
                         for gun in obj.guns:
                             nr = obj.guns.index(gun)
@@ -157,6 +163,7 @@ def PlayMission(ship_class, fighters, botcount, mode):
                                                 obj.y - cos(radians(obj.angle + 90)) * gun,
                                                 obj.actual_speed + 10, obj.lock_angles[nr],
                                                 obj.damage, red_blast, obj))
+                            pg.mixer.Sound.play(laser)
                     obj.shot = time()
         obj.brake = False
         obj.glide = False
@@ -234,6 +241,7 @@ def PlayMission(ship_class, fighters, botcount, mode):
                     if fighter.guns is None:
                         shoots.append(Shoot(fighter.x, fighter.y, fighter.actual_speed+10, fighter.lock_angle,
                                             fighter.damage, red_blast, fighter))
+                        pg.mixer.Sound.play(laser)
                     else:
                         for gun in fighter.guns:
                             nr = fighter.guns.index(gun)
@@ -241,6 +249,7 @@ def PlayMission(ship_class, fighters, botcount, mode):
                                                 fighter.y-cos(radians(fighter.angle+90))*gun,
                                                 fighter.actual_speed+10, fighter.lock_angles[nr],
                                                 fighter.damage, red_blast, fighter))
+                            pg.mixer.Sound.play(laser)
                 if "ion_attack" in fighter.abilities:
                     if event.key == pg.K_r:
                         if fighter.ions > 0:
@@ -374,6 +383,7 @@ def PlayMission(ship_class, fighters, botcount, mode):
                     if bot.guns is None:
                         shoots.append(Shoot(bot.x, bot.y, bot.actual_speed + 10, bot.angle,
                                             bot.damage, red_blast, fighter))
+                        pg.mixer.Sound.play(laser)
                     else:
                         for gun in bot.guns:
                             nr = bot.guns.index(gun)
@@ -381,6 +391,7 @@ def PlayMission(ship_class, fighters, botcount, mode):
                                                 bot.y - cos(radians(bot.angle+90)) * gun,
                                                 bot.actual_speed + 10, bot.angle,
                                                 bot.damage, red_blast, bot))
+                            pg.mixer.Sound.play(laser)
 
         for bot in bots:
             if bot.hp <= 0:

@@ -4,6 +4,7 @@ from classes import screen, x_max, y_max
 pg.init()
 pg.font.init()
 font = pg.font.Font("assets/fonts/Starjedi.ttf", 22)
+pg.mixer.init()
 
 # example
 

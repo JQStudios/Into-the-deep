@@ -1,23 +1,7 @@
 from classes import *
 
 
-def show_text(content, color=(255, 255, 0), start_x=x_max/2, start_y=100, end_size=50, centring=0,
-              fat=False, italic=False):
-    text = content.split("\n")
-    if len(text) >= 2:
-        del text[0]
-    font = pg.font.SysFont('ubuntumono', end_size, fat, italic)
-    show_y = start_y
-    for line in text:
-        info = font.render(line, True, color)
-        if centring == 0:
-            screen.blit(info, (start_x-info.get_width()/2, show_y-info.get_height()/2))
-        elif centring == 1:
-            screen.blit(info, (start_x, show_y-info.get_height()/2))
-        else:
-            screen.blit(info, (start_x-info.get_width(), show_y-info.get_height()/2))
-        show_y += info.get_height()
-    return show_y-start_y
+
 
 
 def check_button(button, pos):

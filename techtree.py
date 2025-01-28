@@ -8,11 +8,40 @@ bomberpng = pg.image.load("bomber.png")
 xfieldmax = x_max
 yfieldmax = y_max
 
+try:
+    with open('data.json') as f:
+        data = json.load(f)
+        print(data)
+except:
+    with open("data.json", "w") as outfile:
+        json.dump(data, outfile)
+        print("File created")
+
+
+def show_text(content, color=(255, 255, 0), start_x=x_max/2, start_y=100, end_size=50, centring=0,
+              fat=False, italic=False):
+    text = content.split("\n")
+    if len(text) >= 2:
+        del text[0]
+    font = pg.font.SysFont('ubuntumono', end_size, fat, italic)
+    show_y = start_y
+    for line in text:
+        info = font.render(line, True, color)
+        if centring == 0:
+            screen.blit(info, (start_x-info.get_width()/2, show_y-info.get_height()/2))
+        elif centring == 1:
+            screen.blit(info, (start_x, show_y-info.get_height()/2))
+        else:
+            screen.blit(info, (start_x-info.get_width(), show_y-info.get_height()/2))
+        show_y += info.get_height()
+    return show_y-start_y
+
 
 def treeing():
     used = True
     ships = [XWing(xwingpng, None, 0), Bomber(bomberpng, None, 0)]
     while used:
+        screen.fill((0, 0, 0))
         for event in pg.event.get():
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
@@ -23,19 +52,10 @@ def treeing():
                                [ship.x-ship.image.get_width()/2, ship.y-ship.image.get_height()/2,
                                 ship.x+ship.image.get_width()/2, ship.y+ship.image.get_height()/2]):
                         if ship.own:
-                            print("play")
+                            show_text("Select", (0, 255, 0), x_max, centring=-1)
                         elif ship.buy:
-                            print("buy")
+                            show_text("Buy", (0, 255, 255), x_max, centring=-1)
 
-
-        try:
-            with open('data.json') as f:
-                data = json.load(f)
-                print(data)
-        except:
-            with open("data.json", "w") as outfile:
-                json.dump(data, outfile)
-                print("File created")
 
         for xp in data[1]:
             for ship in ships:
@@ -43,7 +63,6 @@ def treeing():
                     ship.xp = xp[1]
         for ship in ships:
             ship.x, ship.y = ship.shop_x*xfieldmax, ship.shop_y*yfieldmax
-        screen.fill((0, 0, 0))
         for ship in ships:
             for ship1 in ships:
                 if ship1.name == ship.root:
