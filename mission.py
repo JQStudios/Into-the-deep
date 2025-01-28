@@ -5,7 +5,7 @@ from techtree import *
 laser = pg.mixer.Sound("retro-laser-1-236669.mp3")
 
 
-def PlayMission(ship_class, fighters, botcount, mode):
+def PlayMission(ship_class, fighters, botcount, mode, reward):
     currency = data[0]
     vibratetil = 0
     asteroidpng = pg.image.load("asteroid.png")
@@ -495,7 +495,7 @@ def PlayMission(ship_class, fighters, botcount, mode):
     found = False
     for xp in data[1]:
         if xp[0] == fighter.name:
-            xp[1] = fighter.xp
+            xp[1] = fighter.xp + reward
             found = True
             break
     if not found:
@@ -503,3 +503,17 @@ def PlayMission(ship_class, fighters, botcount, mode):
     data[0] = currency
     with open("data.json", "w") as outfile:
         json.dump(data, outfile)
+    DisplayResults(fighter.xp, reward, 0)
+def DisplayResults(result, reward, extra_exp):
+    running = True
+    while running:
+        for event in pg.event.get():
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
+                    running = False
+        screen.fill((0, 0, 0))
+        AnimatedText(x_max/2, y_max/2-y_max/8, x_max/2, 0, f"Experience: {result}", 30, "c", (255,255,255), 10)
+        show_text(f"Base experience: {reward}", (255, 255, 255), x_max/2, y_max/2)
+        show_text(f"Extra experience: {extra_exp}", (255, 255, 255), x_max/2, y_max/2+50)
+        show_text(f"Total experience: {reward + extra_exp}", (255, 255, 255), x_max/2, y_max/2+100)
+        pg.display.update()

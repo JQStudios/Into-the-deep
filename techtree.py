@@ -1,5 +1,6 @@
 from classes import *
 import json
+import time as tm
 
 data = [0, []]
 level = 0
@@ -7,6 +8,8 @@ xwingpng = pg.image.load("xwing.png")
 bomberpng = pg.image.load("bomber.png")
 xfieldmax = x_max
 yfieldmax = y_max
+
+GlobalAnimation = 1
 
 try:
     with open('data.json') as f:
@@ -35,6 +38,28 @@ def show_text(content, color=(255, 255, 0), start_x=x_max/2, start_y=100, end_si
             screen.blit(info, (start_x-info.get_width(), show_y-info.get_height()/2))
         show_y += info.get_height()
     return show_y-start_y
+
+def AnimatedText(Start_x, Start_y, End_x, End_y, content, time, type="c", color=(255, 255, 0), intervalSek=0, end_size=50, centring=0, updateinterval=0.1):
+    global GlobalAnimation
+    steps = int(time/updateinterval)
+    interval = int(intervalSek/updateinterval)
+    if steps > GlobalAnimation:
+        GlobalAnimation += 1
+        if interval>GlobalAnimation:
+            tm.sleep(updateinterval)
+            x, y = Start_x, Start_y
+            show_text(content, color, x, y, end_size, centring=centring)
+        else:
+            tm.sleep(updateinterval)
+            LocalGlobalAnimation = (GlobalAnimation -interval)/steps
+            if type == "c":
+                x = Start_x + LocalGlobalAnimation * (End_x - Start_x)
+                y = Start_y + LocalGlobalAnimation * (End_y - Start_y)
+                show_text(content, color, x, y, end_size, centring=centring)
+    else:
+        x = End_x
+        y = End_y
+        show_text(content, color, x, y, end_size, centring=centring)
 
 
 def treeing():
