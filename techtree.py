@@ -65,6 +65,9 @@ def AnimatedText(Start_x, Start_y, End_x, End_y, content, time, type="c", color=
 def treeing():
     used = True
     ships = [XWing(xwingpng, None, 0), Bomber(bomberpng, None, 0)]
+    overwritelines = True
+    Selected_x, Selected_y = 0, 0
+    start, end, t = (0, 0), (0, 0), 0
     while used:
         screen.fill((0, 0, 0))
         for event in pg.event.get():
@@ -72,6 +75,9 @@ def treeing():
                 if event.key == pg.K_ESCAPE:
                     used = False
             if event.type == pg.MOUSEBUTTONUP:
+                start, end, t = (0, 0), (0, 0), 0
+                overwritelines = False
+                UnlockLineSize = 0
                 for ship in ships:
                     if in_rect(pg.mouse.get_pos(),
                                [ship.x-ship.image.get_width()/2, ship.y-ship.image.get_height()/2,
@@ -80,7 +86,24 @@ def treeing():
                             show_text("Select", (0, 255, 0), x_max, centring=-1)
                         elif ship.buy:
                             show_text("Buy", (0, 255, 255), x_max, centring=-1)
+            if event.type == pg.MOUSEBUTTONDOWN:
+                overwritelines = True
+                Selected_x, Selected_y = pg.mouse.get_pos()
+                for ship in ships:
+                    if ship.x - ship.image.get_width()/2 < Selected_x < ship.x+ship.image.get_width()/2 and ship.y - ship.image.get_width()/2 < Selected_y < ship.y+ship.image.get_height()/2:
+                            if ship.root is not None:
+                                start, end, t = (ship.root.x, ship.root.y), (ship.x, ship.y), 0
+        if overwritelines:
+            t = min(t + 0.00025, 1) 
+            current_end = (start[0] + (end[0] - start[0]) * t, start[1] + (end[1] - start[1]) * t)
+            pg.draw.line(screen, (44, 117, 255), start, current_end, 4)
+            if t == 1:
+                for ship in ships:
+                    if ship.x - ship.image.get_width()/2 < Selected_x < ship.x+ship.image.get_width()/2 and ship.y - ship.image.get_width()/2 < Selected_y < ship.y+ship.image.get_height()/2:
+                            if ship.root is not None:
+                                ship.own = True
 
+                           
 
         for xp in data[1]:
             for ship in ships:
@@ -92,7 +115,7 @@ def treeing():
             for ship1 in ships:
                 if ship1.name == ship.root:
                     ship.root = ship1
-            if ship.root is not None:
+            if ship.root is not None and overwritelines==False:
                 pg.draw.line(screen, (150, 150, 150), (ship.x, ship.y), (ship.root.x, ship.root.y))
                 if ship.root.xp >= 1000:
                     if data[0] >= ship.price:
