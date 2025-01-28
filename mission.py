@@ -17,6 +17,7 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
     for xp in data[1]:
         if xp[0] == fighter.name:
             fighter.xp = xp[1]
+            startXP = xp[1]
             break
     objects = []
     for nr in range(0, 16):
@@ -503,8 +504,10 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
     data[0] = currency
     with open("data.json", "w") as outfile:
         json.dump(data, outfile)
-    DisplayResults(fighter.xp, reward, 0)
-def DisplayResults(result, reward, extra_exp):
+    DisplayResults(True, fighter.xp, reward, fighter.xp-startXP)
+
+
+def DisplayResults(result, XP, reward, extra_exp):
     running = True
     while running:
         for event in pg.event.get():
@@ -512,8 +515,11 @@ def DisplayResults(result, reward, extra_exp):
                 if event.key == pg.K_ESCAPE:
                     running = False
         screen.fill((0, 0, 0))
-        AnimatedText(x_max/2, y_max/2-y_max/8, x_max/2, 0, f"Experience: {result}", 30, "c", (255,255,255), 10)
-        show_text(f"Base experience: {reward}", (255, 255, 255), x_max/2, y_max/2)
-        show_text(f"Extra experience: {extra_exp}", (255, 255, 255), x_max/2, y_max/2+50)
-        show_text(f"Total experience: {reward + extra_exp}", (255, 255, 255), x_max/2, y_max/2+100)
+        if result == True:
+            AnimatedText(x_max/2, y_max/2-y_max/8, x_max/2, 0, f"Battle Won", 10, "c", (255,255,255), 2)
+        if result == False:
+            AnimatedText(x_max/2, y_max/2-y_max/8, x_max/2, 0, f"Battle Lost", 10, "c", (255,255.255), 2)
+        show_text(f"Reward: {reward}", (255, 255, 255), x_max/2, y_max/2)
+        show_text(f"Extra XP: {extra_exp}", (255, 255, 255), x_max/2, y_max/2+50)
+        show_text(f"Total XP: {XP}", (255, 255, 255), x_max/2, y_max/2+100)
         pg.display.update()
