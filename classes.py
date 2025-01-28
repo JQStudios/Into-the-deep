@@ -310,6 +310,8 @@ class Ship(pg.sprite.Sprite):
                     self.shield += 0.05 * timeout
                 else:
                     self.shield = self.max_shield
+            self.image = pg.transform.rotate(self.org_image, self.angle)
+            self.actual_size = [self.image.get_width(), self.image.get_height()]
         else:
             if time() >= self.dodge_time+0.1:
                 self.dodge_ready = False

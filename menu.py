@@ -90,7 +90,6 @@ class button(pg.sprite.Sprite):
             for line in wrapped_lines:
                 line_surface = DescriptionFont.render(line, True, (0, 0, 0))
                 if FULLSCREEN:
-                    print("fullscreen")
                     line_rect = line_surface.get_rect(topleft=(x+x/2.4, y_offset))
                 else:
                     line_rect = line_surface.get_rect(topleft=(x+x/2.4, y_offset))
