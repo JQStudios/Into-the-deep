@@ -483,11 +483,6 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
 
         value = 1
         if (fighter.hp <= 0) or (value <= 0):
-            screen.fill((0, 0, 0))
-            pg.draw.line(screen, (255, 255, 255), (x_max/2, 0), (x_max/2, y_max), 2)
-            show_text(str(int(fighter.hp)), (255, 0, 0), x_max/4, y_max/2-25)
-            pg.display.update()
-            pg.time.delay(3000)
             running = False
         if controller is not None:
             if time() > vibratetil and not vibrating:
