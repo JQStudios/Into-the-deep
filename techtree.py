@@ -1,6 +1,7 @@
 from classes import *
 import json
 import time as tm
+import random
 
 data = [0, []]
 level = 0
@@ -63,6 +64,11 @@ def AnimatedText(Start_x, Start_y, End_x, End_y, content, time, type="c", color=
 
 
 def treeing():
+    stars = []
+    i=0
+    while i < 100: 
+        stars.append((random.randint(0, x_max), random.randint(0, y_max)))
+        i += 1
     used = True
     ships = [XWing(xwingpng, None, 0), Bomber(bomberpng, None, 0)]
     overwritelines = True
@@ -70,6 +76,8 @@ def treeing():
     start, end, t = (0, 0), (0, 0), 0
     while used:
         screen.fill((0, 0, 0))
+        for star in stars:
+            pg.draw.circle(screen, (255, 255, 255), star, 2)
         for event in pg.event.get():
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
