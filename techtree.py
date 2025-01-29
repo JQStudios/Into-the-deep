@@ -85,7 +85,6 @@ def treeing():
             if event.type == pg.MOUSEBUTTONUP:
                 start, end, t = (0, 0), (0, 0), 0
                 overwritelines = False
-                UnlockLineSize = 0
                 for ship in ships:
                     if in_rect(pg.mouse.get_pos(),
                                [ship.x-ship.image.get_width()/2, ship.y-ship.image.get_height()/2,
