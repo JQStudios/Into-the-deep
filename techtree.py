@@ -22,6 +22,7 @@ except:
         print("File created")
 
 
+
 def show_text(content, color=(255, 255, 0), start_x=x_max/2, start_y=100, end_size=50, centring=0,
               fat=False, italic=False):
     text = content.split("\n")
@@ -62,6 +63,10 @@ def AnimatedText(Start_x, Start_y, End_x, End_y, content, time, type="c", color=
         y = End_y
         show_text(content, color, x, y, end_size, centring=centring)
 
+def InfoBox(x, y, size_x, size_y, Title, Unlocketion,  color=(255, 255, 0), textColor=(255, 255, 255)):
+    pg.draw.rect(screen, (color), (x, y, size_x, size_y))
+    show_text(Title, textColor, x + size_x / 20, y + size_y / 4, 50, 1, True, False)
+    show_text(Unlocketion, textColor, x + size_x / 20, y + size_y - size_y/4, 22, 1, True, False)
 
 def treeing():
     stars = []
@@ -74,6 +79,7 @@ def treeing():
     overwritelines = True
     Selected_x, Selected_y = 0, 0
     start, end, t = (0, 0), (0, 0), 0
+    blink = 0
     while used:
         screen.fill((0, 0, 0))
         for star in stars:
@@ -107,17 +113,39 @@ def treeing():
             if t == 1:
                 for ship in ships:
                     if ship.x - ship.image.get_width()/2 < Selected_x < ship.x+ship.image.get_width()/2 and ship.y - ship.image.get_width()/2 < Selected_y < ship.y+ship.image.get_height()/2:
-                            if ship.root is not None:
+                            if ship.root is not None and ship.own == False:
                                 ship.own = True
-
-                           
-
+                                found = False
+                                for xp in data[1]:
+                                    if xp[0] == ship.root.name:
+                                        xp[1] = xp[1] - ship.price
+                                        found = True
+                                        break
+                                if not found:
+                                    print("Couldn't find root ship")
+                                    ship.own = False
         for xp in data[1]:
             for ship in ships:
                 if xp[0] == ship.name:
                     ship.xp = xp[1]
         for ship in ships:
             ship.x, ship.y = ship.shop_x*xfieldmax, ship.shop_y*yfieldmax
+            if ship.x - ship.image.get_width()/2 < pg.mouse.get_pos()[0] < ship.x+ship.image.get_width()/2 and ship.y - ship.image.get_width()/2 < pg.mouse.get_pos()[1] < ship.y+ship.image.get_height()/2:
+                    if ship.root is not None:
+                        if ship.price <= ship.root.xp:
+                            if blink >= 0 and blink <= 125:
+                                InfoBox(ship.x + ship.image.get_width()/3, ship.y+ship.image.get_height()/3, x_max/4, y_max/8, f"Hold To Unlock", f"{ship.root.name}: {ship.root.xp}/{ship.price}", (44, 117, 255))
+                                blink += 1
+                            if blink >= 125 and blink <= 250:
+                                InfoBox(ship.x + ship.image.get_width()/3, ship.y+ship.image.get_height()/3, x_max/4, y_max/8, f"{ship.name}", f"{ship.root.name}: {ship.root.xp}/{ship.price}", (44, 117, 255))
+                                blink += 1
+                            if blink >= 250:
+                                blink = 0
+                        else:
+                            InfoBox(ship.x + ship.image.get_width()/3, ship.y+ship.image.get_height()/3, x_max/4, y_max/8, str(ship.name), f"{ship.root.name}: {ship.root.xp}/{ship.price}", (44, 117, 255))
+
+                    else:
+                        InfoBox(ship.x + ship.image.get_width()/3, ship.y+ship.image.get_height()/3, x_max/4, y_max/8, str(ship.name), f"Root ship: {ship.xp}", (44, 117, 255))
         for ship in ships:
             for ship1 in ships:
                 if ship1.name == ship.root:
