@@ -30,14 +30,52 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
         botcount = 4
     else:
         botcount = 8
+    botclass = "Default"
     for nr in range(0, botcount+level):
+        speed = x_max/30000
         if mode == "battle royal":
-            hp = 100
-            damage = 5
+            botclass = random.choice(["Default", "FlameBot", "Sniper", "Heavy"])
+            if botclass == "Default":
+                hp = 100
+                damage = 5
+                rate = 0.4
+            elif botclass == "FlameBot":
+                hp = 80
+                damage = 0
+                rate = -1
+            elif botclass == "Sniper":
+                hp = 50
+                damage = 10
+                rate = 1.5
+            else:
+                hp = 120
+                damage = 2.5
+                rate = 0.3
         else:
-            hp = 35
-            damage = 1
-        bots.append(Bot(randint(0, x_max), randint(0, y_max), dronepng, hp=hp, damage=damage))
+            botclass = random.choice(["Default", "FlameBot", "Kamikaze", "Sniper", "Heavy"])
+            if botclass == "Default":
+                hp = 35
+                damage = 1
+                rate = 0.4
+            elif botclass == "FlameBot":
+                hp = 20
+                damage = 0
+                rate = -1
+            elif botclass == "Kamikaze":
+                hp = 50
+                damage = 0
+                rate = -1
+                speed = x_max/7500
+            elif botclass == "Sniper":
+                hp = 10
+                damage = 3
+                rate = 2
+            else:
+                hp = 50
+                damage = 0.5
+                rate = 0.3
+        bots.append(Bot(randint(0, x_max), randint(0, y_max), dronepng, fire_rate=rate, hp=hp,
+                        damage=damage, botclass=botclass, speed=speed))
     spawn_time = time()
 
 
@@ -164,7 +202,7 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                                                 obj.y - cos(radians(obj.angle + 90)) * gun,
                                                 obj.actual_speed + 10, obj.lock_angles[nr],
                                                 obj.damage, red_blast, obj))
-                            pg.mixer.Sound.play(laser)
+                        pg.mixer.Sound.play(laser)
                     obj.shot = time()
         obj.brake = False
         obj.glide = False
@@ -250,7 +288,7 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                                                 fighter.y-cos(radians(fighter.angle+90))*gun,
                                                 fighter.actual_speed+10, fighter.lock_angles[nr],
                                                 fighter.damage, red_blast, fighter))
-                            pg.mixer.Sound.play(laser)
+                        pg.mixer.Sound.play(laser)
                 if "ion_attack" in fighter.abilities:
                     if event.key == pg.K_r:
                         if fighter.ions > 0:
@@ -381,18 +419,29 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
             if time() >= bot.shot+bot.fire_rate:
                 if not bot.dead:
                     bot.shot = time()
-                    if bot.guns is None:
-                        shoots.append(Shoot(bot.x, bot.y, bot.actual_speed + 10, bot.angle,
-                                            bot.damage, red_blast, fighter))
-                        pg.mixer.Sound.play(laser)
-                    else:
+                    if bot.botclass == "Sniper":
+                        target_system(bot, [fighter])
                         for gun in bot.guns:
                             nr = bot.guns.index(gun)
-                            shoots.append(Shoot(bot.x - sin(radians(bot.angle+90)) * gun,
-                                                bot.y - cos(radians(bot.angle+90)) * gun,
-                                                bot.actual_speed + 10, bot.angle,
+                            shoots.append(Shoot(bot.x - sin(radians(bot.angle + 90)) * gun,
+                                                bot.y - cos(radians(bot.angle + 90)) * gun,
+                                                bot.actual_speed + 10, bot.lock_angles[nr],
                                                 bot.damage, red_blast, bot))
+                    if bot.botclass != "FlameBot" and bot.botclass != "Kamikaze" and bot.botclass != "Sniper":
+                        if bot.guns is None:
+                            shoots.append(Shoot(bot.x, bot.y, bot.actual_speed + 10, bot.angle,
+                                                bot.damage, red_blast, fighter))
                             pg.mixer.Sound.play(laser)
+                        else:
+                            for gun in bot.guns:
+                                nr = bot.guns.index(gun)
+                                shoots.append(Shoot(bot.x - sin(radians(bot.angle+90)) * gun,
+                                                    bot.y - cos(radians(bot.angle+90)) * gun,
+                                                    bot.actual_speed + 10, bot.angle,
+                                                    bot.damage, red_blast, bot))
+                                pg.mixer.Sound.play(laser)
+                    elif bot.botclass == "FlameBot":
+                        flamethrower(bot, 0.3, 7)
 
         for bot in bots:
             if bot.hp <= 0:

@@ -253,6 +253,7 @@ class Ship(pg.sprite.Sprite):
         self.shield = 100
         self.damage_timeout = 0
         self.xp = xp
+        self.weapon = 0
 
     def minus_shield(self, damage):
         self.damage_timeout = time()
@@ -393,11 +394,12 @@ class Ship(pg.sprite.Sprite):
 
 
 class Bot(Ship):
-    def __init__(self, x, y, image, hp=35, damage=1):
-        super().__init__(x=x, y=y, speed=x_max/30000, agility=0.4, fire_rate=0.4, hp=hp, cooldown=5, damage=damage,
+    def __init__(self, x, y, image, hp=35, damage=1, fire_rate=0.4, botclass="Default", speed=x_max/30000):
+        super().__init__(x=x, y=y, speed=speed, agility=0.4, fire_rate=fire_rate, hp=hp, cooldown=5, damage=damage,
                          size=x_max/75, image=image, guns=[-x_max/100, x_max/100])
         self.rect_color = (255, 255, 255)
         self.dead = False
+        self.botclass = botclass
 
     def attack(self, target, obstacles, mode):
         self.left_dodge = False
@@ -434,7 +436,7 @@ class Bot(Ship):
         if (not self.dodge) and (not self.left_dodge) and (not self.right_dodge):
             self.x -= sin(radians(self.angle))*self.actual_speed*timeout
             self.y -= cos(radians(self.angle))*self.actual_speed*timeout
-        if dist((self.x, self.y), (target.x, target.y)) < 100:
+        if dist((self.x, self.y), (target.x, target.y)) < 100 and self.botclass != "Kamikaze":
             self.x += sin(radians(self.angle))*self.actual_speed*2*timeout
             self.y += cos(radians(self.angle))*self.actual_speed*2*timeout
 
