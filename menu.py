@@ -416,8 +416,3 @@ def SelectMissions():
         )
         i += 1
     return Missions
-
-# Techtree
-def InfoBox(x, y, size_x, size_y, content, color=(255, 255, 0)):
-    pg.draw.rect(screen, (0, 0, 0), (x, y, size_x, size_y))
-    show_text(content, color, x + size_x / 2, y + size_y / 2, 50, 0, True, False)
