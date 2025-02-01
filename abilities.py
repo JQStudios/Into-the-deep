@@ -42,13 +42,12 @@ def frag_explosion(asteroid):
 
 
 def teleport(obj, enemies, asteroids):
-    pressed = True
-    porting = True
+    porting = False
     while porting:
         targetx = obj.x
         targety = obj.y
-        targetx += controller.get_axis(2)*10
-        targety += controller.get_axis(3)*10
+        targetx += controller.get_axis(2)
+        targety += controller.get_axis(3)
         screen.fill((0, 0, 0))
         for enemy in enemies:
             pg.draw.rect(screen, enemy.rect_color, [enemy.x - enemy.hitbox / 2, enemy.y - enemy.hitbox / 2,
@@ -65,15 +64,9 @@ def teleport(obj, enemies, asteroids):
                      [int(obj.x - obj.hitbox / 2), int(obj.y - obj.hitbox / 2),
                       int(obj.hitbox), int(obj.hitbox)], 2)
         pg.draw.circle(screen, (0, 100, 255), (targetx, targety), 100, 2)
-        pg.display.update()
         if controller.get_button(0):
-            if not pressed:
-                obj.x = targetx
-                obj.y = targety
-                for enemy in enemies:
-                    if dist((obj.x, obj.y), (enemy.x, enemy.y)) <= 200:
-                        enemy.hp -= 10
-                porting = False
-                return True
-        else:
-            pressed = False
+            obj.x = targetx
+            obj.y = targety
+            for enemy in enemies:
+                if dist((obj.x, obj.y), (enemy.x, enemy.y)) <= 200:
+                    enemy.hp -= 10

@@ -23,7 +23,8 @@ while running:
     for event in pg.event.get():
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
-                running = False
+                execButtonAction("main_menu", 0, 0)
+                pass
         if event.type == pg.MOUSEBUTTONDOWN:
             mousepos = pg.mouse.get_pos()
             CheckMenu(buttons, mousepos)
