@@ -35,7 +35,45 @@ def flamethrower(parent, speed, chance=10, spread=5):
         shoots.append(Shoot(parent.x, parent.y, speed, direction, 1, fireball, parent))
 
 
-def frag_explosion(obj):
+def frag_explosion(asteroid):
     for i in range(0, 75):
-        shoots.append(Shoot(obj.x, obj.y, 8, randint(0, 360), 2, frag))
-    frag_grenades.remove(obj)
+        shoots.append(Shoot(asteroid.x, asteroid.y, 8, randint(0, 360), 2, frag))
+    frag_grenades.remove(asteroid)
+
+
+def teleport(obj, enemies, asteroids):
+    pressed = True
+    porting = True
+    while porting:
+        targetx = obj.x
+        targety = obj.y
+        targetx += controller.get_axis(2)*10
+        targety += controller.get_axis(3)*10
+        screen.fill((0, 0, 0))
+        for enemy in enemies:
+            pg.draw.rect(screen, enemy.rect_color, [enemy.x - enemy.hitbox / 2, enemy.y - enemy.hitbox / 2,
+                                                  enemy.hitbox, enemy.hitbox], 2)
+            screen.blit(enemy.image, (enemy.x - enemy.actual_size[0] / 2, enemy.y - enemy.actual_size[1] / 2))
+            pg.draw.line(screen, (255, 0, 0), (enemy.x - enemy.hitbox / 2, enemy.y - enemy.hitbox / 2 - 10),
+                         ((enemy.x-enemy.hitbox/2)+enemy.hp*(enemy.hitbox/enemy.max_hp), enemy.y-enemy.hitbox/2-10), 4)
+        for asteroid in asteroids:
+            pg.draw.rect(screen, (255, 0, 0), [asteroid.x - asteroid.hitbox / 2, asteroid.y - asteroid.hitbox / 2,
+                                               asteroid.hitbox, asteroid.hitbox], 2)
+            screen.blit(asteroid.image, (asteroid.x-asteroid.image.get_width()/2, asteroid.y-asteroid.image.get_height()/2))
+        screen.blit(obj.image, (int(obj.x - obj.actual_size[0] / 2), int(obj.y - obj.actual_size[1] / 2)))
+        pg.draw.rect(screen, obj.rect_color,
+                     [int(obj.x - obj.hitbox / 2), int(obj.y - obj.hitbox / 2),
+                      int(obj.hitbox), int(obj.hitbox)], 2)
+        pg.draw.circle(screen, (0, 100, 255), (targetx, targety), 100, 2)
+        pg.display.update()
+        if controller.get_button(0):
+            if not pressed:
+                obj.x = targetx
+                obj.y = targety
+                for enemy in enemies:
+                    if dist((obj.x, obj.y), (enemy.x, enemy.y)) <= 200:
+                        enemy.hp -= 10
+                porting = False
+                return True
+        else:
+            pressed = False

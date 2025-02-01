@@ -3,9 +3,11 @@ from abilities import *
 from techtree import *
 
 laser = pg.mixer.Sound("retro-laser-1-236669.mp3")
+pressed = False
 
 
 def PlayMission(ship_class, fighters, botcount, mode, reward):
+    global pressed
     currency = data[0]
     vibratetil = 0
     asteroidpng = pg.image.load("asteroid.png")
@@ -133,6 +135,13 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
 
 
     def controller_check(obj, controller_obj, enemies):
+        global pressed
+        if controller_obj.get_button(0):
+            if not pressed:
+                pressed = True
+                teleport(obj, bots, objects)
+            else:
+                pressed = False
         if abs(controller_obj.get_axis(0)) >= 0.1 or abs(controller_obj.get_axis(1)) >= 0.1:
             obj.angle = get_angle((0, 0), (-controller_obj.get_axis(0), -controller_obj.get_axis(1)))
             print(obj.angle)
