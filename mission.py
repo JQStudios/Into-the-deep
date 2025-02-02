@@ -6,6 +6,7 @@ laser = pg.mixer.Sound("retro-laser-1-236669.mp3")
 
 
 def PlayMission(ship_class, fighters, botcount, mode, reward):
+    result = False
     currency = data[0]
     vibratetil = 0
     asteroidpng = pg.image.load("asteroid.png")
@@ -523,11 +524,9 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
 
         if len(bots) <= 0:
             screen.fill((0, 0, 0))
-            show_text("Win!")
-            pg.display.update()
-            pg.time.delay(1000)
+            result = True
             fighter.xp += 100
-            currency += 1000
+            currency += reward
             running = False
 
         value = 1
@@ -548,7 +547,7 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
     data[0] = currency
     with open("data.json", "w") as outfile:
         json.dump(data, outfile)
-    DisplayResults(True, fighter.xp, reward, fighter.xp-startXP)
+    DisplayResults(result, fighter.xp, reward, fighter.xp-startXP)
 
 
 def DisplayResults(result, XP, reward, extra_exp):
@@ -560,10 +559,10 @@ def DisplayResults(result, XP, reward, extra_exp):
                     running = False
         screen.fill((0, 0, 0))
         if result == True:
-            AnimatedText(x_max/2, y_max/2-y_max/8, x_max/2, 0, f"Battle Won", 10, "c", (255,255,255), 2)
+            if AnimatedText(x_max/2, y_max/2, x_max/2, y_max/3, f"Battle Won", 5, "c", (255,255,255), 2, 200):
+                show_text(f"Reward: {reward}", (255, 255, 255), x_max/2, y_max/2)
+                show_text(f"XP: {extra_exp}", (255, 255, 255), x_max/2, y_max/2+50)
+                show_text(f"Total XP: {XP}", (255, 255, 255), x_max/2, y_max/2+100)
         if result == False:
-            AnimatedText(x_max/2, y_max/2-y_max/8, x_max/2, 0, f"Battle Lost", 10, "c", (255,255.255), 2)
-        show_text(f"Reward: {reward}", (255, 255, 255), x_max/2, y_max/2)
-        show_text(f"Extra XP: {extra_exp}", (255, 255, 255), x_max/2, y_max/2+50)
-        show_text(f"Total XP: {XP}", (255, 255, 255), x_max/2, y_max/2+100)
+            show_text(f"Battle Lost", (255,0,0), x_max/2, y_max/2, 200)
         pg.display.update()

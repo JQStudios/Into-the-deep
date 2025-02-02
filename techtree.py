@@ -45,6 +45,7 @@ def AnimatedText(Start_x, Start_y, End_x, End_y, content, time, type="c", color=
     global GlobalAnimation
     steps = int(time/updateinterval)
     interval = int(intervalSek/updateinterval)
+    done = False
     if steps > GlobalAnimation:
         GlobalAnimation += 1
         if interval>GlobalAnimation:
@@ -53,15 +54,18 @@ def AnimatedText(Start_x, Start_y, End_x, End_y, content, time, type="c", color=
             show_text(content, color, x, y, end_size, centring=centring)
         else:
             tm.sleep(updateinterval)
-            LocalGlobalAnimation = (GlobalAnimation -interval)/steps
+            LocalGlobalAnimation = (GlobalAnimation - interval) / (steps - interval)
             if type == "c":
                 x = Start_x + LocalGlobalAnimation * (End_x - Start_x)
                 y = Start_y + LocalGlobalAnimation * (End_y - Start_y)
                 show_text(content, color, x, y, end_size, centring=centring)
+                print(LocalGlobalAnimation)
     else:
+        done = True
         x = End_x
         y = End_y
         show_text(content, color, x, y, end_size, centring=centring)
+    return done
 
 def InfoBox(x, y, size_x, size_y, Title, Unlocketion,  color=(255, 255, 0), textColor=(255, 255, 255)):
     pg.draw.rect(screen, (color), (x, y, size_x, size_y))
