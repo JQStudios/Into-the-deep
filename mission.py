@@ -3,6 +3,7 @@ from abilities import *
 from techtree import *
 
 laser = pg.mixer.Sound("retro-laser-1-236669.mp3")
+laser.set_volume(0.2)
 
 
 def PlayMission(ship_class, fighters, botcount, mode, reward):
@@ -11,9 +12,10 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
     vibratetil = 0
     asteroidpng = pg.image.load("asteroid.png")
     dronepng = pg.image.load("drone.png")
-    if ship_class == "x_wing":
+    ship_class = data[2]
+    if ship_class == "X-Wing":
         fighter = XWing(image=xwingpng)
-    elif ship_class == "bomber":
+    elif ship_class == "Bomber":
         fighter = Bomber(image=bomberpng)
     for xp in data[1]:
         if xp[0] == fighter.name:

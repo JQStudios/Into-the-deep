@@ -456,7 +456,7 @@ class Bot(Ship):
 
 class XWing(Ship):
     def __init__(self, image, abilities=None, xp=0):
-        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/2000, agility=1, fire_rate=0.5, hp=100,
+        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/1000, agility=1, fire_rate=0.5, hp=80,
                          cooldown=5, damage=5, size=x_max/50, image=image, guns=[-x_max/100, x_max/100], xp=xp)
         if abilities is None:
             abilities = ["flamethrower"]
@@ -476,8 +476,8 @@ class XWing(Ship):
 
 class Bomber(Ship):
     def __init__(self, image, abilities=None, xp=0):
-        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/1500, agility=0.6, fire_rate=0.5, hp=100,
-                         cooldown=5, damage=5, size=x_max/25, hitbox=x_max/40, image=image,
+        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/2000, agility=0.6, fire_rate=1, hp=120,
+                         cooldown=5, damage=6, size=x_max/25, hitbox=x_max/30, image=image,
                          guns=[-x_max/50, x_max/50], xp=xp)
         if abilities is None:
             abilities = ["ion_attack"]
