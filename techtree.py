@@ -22,7 +22,6 @@ except:
         print("File created")
 
 
-
 def show_text(content, color=(255, 255, 0), start_x=x_max/2, start_y=100, end_size=50, centring=0,
               fat=False, italic=False):
     text = content.split("\n")
@@ -40,6 +39,7 @@ def show_text(content, color=(255, 255, 0), start_x=x_max/2, start_y=100, end_si
             screen.blit(info, (start_x-info.get_width(), show_y-info.get_height()/2))
         show_y += info.get_height()
     return show_y-start_y
+
 
 def AnimatedText(Start_x, Start_y, End_x, End_y, content, time, type="c", color=(255, 255, 0), intervalSek=0, end_size=50, centring=0, updateinterval=0.1):
     global GlobalAnimation
@@ -63,10 +63,12 @@ def AnimatedText(Start_x, Start_y, End_x, End_y, content, time, type="c", color=
         y = End_y
         show_text(content, color, x, y, end_size, centring=centring)
 
+
 def InfoBox(x, y, size_x, size_y, Title, Unlocketion,  color=(255, 255, 0), textColor=(255, 255, 255)):
     pg.draw.rect(screen, (color), (x, y, size_x, size_y))
     show_text(Title, textColor, x + size_x / 20, y + size_y / 4, 50, 1, True, False)
     show_text(Unlocketion, textColor, x + size_x / 20, y + size_y - size_y/4, 22, 1, True, False)
+
 
 def treeing():
     stars = []
@@ -96,9 +98,7 @@ def treeing():
                                [ship.x-ship.image.get_width()/2, ship.y-ship.image.get_height()/2,
                                 ship.x+ship.image.get_width()/2, ship.y+ship.image.get_height()/2]):
                         if ship.own:
-                            show_text("Select", (0, 255, 0), x_max, centring=-1)
-                        elif ship.buy:
-                            show_text("Buy", (0, 255, 255), x_max, centring=-1)
+                            data[2] = ship.name
             if event.type == pg.MOUSEBUTTONDOWN:
                 overwritelines = True
                 Selected_x, Selected_y = pg.mouse.get_pos()
@@ -128,6 +128,8 @@ def treeing():
             for ship in ships:
                 if xp[0] == ship.name:
                     ship.xp = xp[1]
+                    if ship.xp > 0:
+                        ship.own = True
         for ship in ships:
             ship.x, ship.y = ship.shop_x*xfieldmax, ship.shop_y*yfieldmax
             if ship.x - ship.image.get_width()/2 < pg.mouse.get_pos()[0] < ship.x+ship.image.get_width()/2 and ship.y - ship.image.get_width()/2 < pg.mouse.get_pos()[1] < ship.y+ship.image.get_height()/2:
@@ -150,7 +152,7 @@ def treeing():
             for ship1 in ships:
                 if ship1.name == ship.root:
                     ship.root = ship1
-            if ship.root is not None and overwritelines==False:
+            if ship.root is not None and overwritelines is False:
                 pg.draw.line(screen, (150, 150, 150), (ship.x, ship.y), (ship.root.x, ship.root.y))
                 if ship.root.xp >= 1000:
                     if data[0] >= ship.price:
@@ -164,3 +166,6 @@ def treeing():
             pg.draw.rect(screen, color, [ship.x-ship.image.get_width()/2, ship.y-ship.image.get_height()/2,
                                          ship.image.get_width(), ship.image.get_height()], 2)
         pg.display.update()
+
+    with open("data.json", "w") as outfile:
+        json.dump(data, outfile)

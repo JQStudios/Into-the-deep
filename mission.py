@@ -3,6 +3,7 @@ from abilities import *
 from techtree import *
 
 laser = pg.mixer.Sound("retro-laser-1-236669.mp3")
+laser.set_volume(0.2)
 pressed = False
 
 
@@ -12,10 +13,13 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
     vibratetil = 0
     asteroidpng = pg.image.load("asteroid.png")
     dronepng = pg.image.load("drone.png")
-    if ship_class == "x_wing":
+    ship_class = data[2]
+    if ship_class == "X-wing":
         fighter = XWing(image=xwingpng)
-    elif ship_class == "bomber":
+    elif ship_class == "Bomber":
         fighter = Bomber(image=bomberpng)
+    else:
+        fighter = XWing(image=xwingpng)
     for xp in data[1]:
         if xp[0] == fighter.name:
             fighter.xp = xp[1]
@@ -450,7 +454,7 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                                                     bot.damage, red_blast, bot))
                                 pg.mixer.Sound.play(laser)
                     elif bot.botclass == "FlameBot":
-                        flamethrower(bot, 0.3, 7)
+                        flamethrower(bot, 0.6, 7)
 
         for bot in bots:
             if bot.hp <= 0:

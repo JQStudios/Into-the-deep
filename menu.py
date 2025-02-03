@@ -301,7 +301,7 @@ def execButtonAction(action, button_x, button_y):
     elif MissionSplit[0] == "StartMission":
         Mission = Mission = ast.literal_eval(MissionSplit[1].strip())
         print(Mission)
-        PlayMission("x_wing", None, Mission['BC'], Mission['MT'], Mission["RW"])
+        PlayMission("X-Wing", None, Mission['BC'], Mission['MT'], Mission["RW"])
     else:
         NewMessage = display_message(screen, f"error: uknown action: {action}", (200, 0, 0))
 
