@@ -476,7 +476,7 @@ class XWing(Ship):
 
 class Bomber(Ship):
     def __init__(self, image, abilities=None, xp=0):
-        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/2000, agility=0.6, fire_rate=1, hp=120,
+        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/2000, agility=0.6, fire_rate=0.25, hp=120,
                          cooldown=5, damage=6, size=x_max/25, hitbox=x_max/30, image=image,
                          guns=[-x_max/50, x_max/50], xp=xp)
         if abilities is None:

@@ -173,8 +173,10 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
         else:
             return None
 
-
     def controller_check(obj, controller_obj, enemies):
+        if controller_obj.get_button(0):
+            teleport(obj, enemies, objects)
+            print("port initialized")
         if abs(controller_obj.get_axis(0)) >= 0.1 or abs(controller_obj.get_axis(1)) >= 0.1:
             obj.angle = get_angle((0, 0), (-controller_obj.get_axis(0), -controller_obj.get_axis(1)))
             print(obj.angle)
