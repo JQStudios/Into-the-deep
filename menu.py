@@ -411,7 +411,7 @@ def SelectMissions():
                 "MD": MissionDescriptions[RandomMission],
                 "BC": 10,
                 "DC": 100,
-                "RW": 500
+                "RW": 800
             }
         )
         i += 1
