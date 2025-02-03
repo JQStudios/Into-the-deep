@@ -456,7 +456,7 @@ class Bot(Ship):
 
 class XWing(Ship):
     def __init__(self, image, abilities=None, xp=0):
-        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/1000, agility=1, fire_rate=0.5, hp=100,
+        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/2000, agility=1, fire_rate=0.5, hp=100,
                          cooldown=5, damage=5, size=x_max/50, image=image, guns=[-x_max/100, x_max/100], xp=xp)
         if abilities is None:
             abilities = ["flamethrower"]
@@ -471,6 +471,7 @@ class XWing(Ship):
         self.price = 1000
         self.shop_x = 0.5
         self.shop_y = 0.1
+        print(self.speed)
 
 
 class Bomber(Ship):

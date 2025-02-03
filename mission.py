@@ -3,23 +3,18 @@ from abilities import *
 from techtree import *
 
 laser = pg.mixer.Sound("retro-laser-1-236669.mp3")
-laser.set_volume(0.2)
-pressed = False
 
 
 def PlayMission(ship_class, fighters, botcount, mode, reward):
-    global pressed
+    result = False
     currency = data[0]
     vibratetil = 0
     asteroidpng = pg.image.load("asteroid.png")
     dronepng = pg.image.load("drone.png")
-    ship_class = data[2]
-    if ship_class == "X-wing":
+    if ship_class == "x_wing":
         fighter = XWing(image=xwingpng)
-    elif ship_class == "Bomber":
+    elif ship_class == "bomber":
         fighter = Bomber(image=bomberpng)
-    else:
-        fighter = XWing(image=xwingpng)
     for xp in data[1]:
         if xp[0] == fighter.name:
             fighter.xp = xp[1]
@@ -178,13 +173,6 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
 
 
     def controller_check(obj, controller_obj, enemies):
-        global pressed
-        if controller_obj.get_button(0):
-            if not pressed:
-                pressed = True
-                teleport(obj, bots, objects)
-            else:
-                pressed = False
         if abs(controller_obj.get_axis(0)) >= 0.1 or abs(controller_obj.get_axis(1)) >= 0.1:
             obj.angle = get_angle((0, 0), (-controller_obj.get_axis(0), -controller_obj.get_axis(1)))
             print(obj.angle)
@@ -454,7 +442,7 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                                                     bot.damage, red_blast, bot))
                                 pg.mixer.Sound.play(laser)
                     elif bot.botclass == "FlameBot":
-                        flamethrower(bot, 0.6, 7)
+                        flamethrower(bot, 0.3, 7)
 
         for bot in bots:
             if bot.hp <= 0:
@@ -536,11 +524,9 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
 
         if len(bots) <= 0:
             screen.fill((0, 0, 0))
-            show_text("Win!")
-            pg.display.update()
-            pg.time.delay(1000)
+            result = True
             fighter.xp += 100
-            currency += 1000
+            currency += reward
             running = False
 
         value = 1
@@ -561,7 +547,7 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
     data[0] = currency
     with open("data.json", "w") as outfile:
         json.dump(data, outfile)
-    DisplayResults(True, fighter.xp, reward, fighter.xp-startXP)
+    DisplayResults(result, fighter.xp, reward, fighter.xp-startXP)
 
 
 def DisplayResults(result, XP, reward, extra_exp):
@@ -573,10 +559,10 @@ def DisplayResults(result, XP, reward, extra_exp):
                     running = False
         screen.fill((0, 0, 0))
         if result == True:
-            AnimatedText(x_max/2, y_max/2-y_max/8, x_max/2, 0, f"Battle Won", 10, "c", (255,255,255), 2)
+            if AnimatedText(x_max/2, y_max/2, x_max/2, y_max/3, f"Battle Won", 5, "c", (255,255,255), 2, 200):
+                show_text(f"Reward: {reward}", (255, 255, 255), x_max/2, y_max/2)
+                show_text(f"XP: {extra_exp}", (255, 255, 255), x_max/2, y_max/2+50)
+                show_text(f"Total XP: {XP}", (255, 255, 255), x_max/2, y_max/2+100)
         if result == False:
-            AnimatedText(x_max/2, y_max/2-y_max/8, x_max/2, 0, f"Battle Lost", 10, "c", (255,255.255), 2)
-        show_text(f"Reward: {reward}", (255, 255, 255), x_max/2, y_max/2)
-        show_text(f"Extra XP: {extra_exp}", (255, 255, 255), x_max/2, y_max/2+50)
-        show_text(f"Total XP: {XP}", (255, 255, 255), x_max/2, y_max/2+100)
+            show_text(f"Battle Lost", (255,0,0), x_max/2, y_max/2, 200)
         pg.display.update()
