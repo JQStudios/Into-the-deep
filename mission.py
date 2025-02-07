@@ -86,6 +86,7 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
     def minus_shield(obj, damage):
         if time() >= spawn_time+2:
             obj.damage_timeout = time()
+            print(obj.damage_timeout)
             if obj.shield > 0:
                 obj.shield -= damage
                 if obj.shield < 0:
@@ -181,8 +182,8 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
         if abs(controller_obj.get_axis(0)) >= 0.1 or abs(controller_obj.get_axis(1)) >= 0.1:
             obj.angle = get_angle((0, 0), (-controller_obj.get_axis(0), -controller_obj.get_axis(1)))
             print(obj.angle)
-            obj.x_speed = -controller_obj.get_axis(0)*obj.speed
-            obj.y_speed = -controller_obj.get_axis(1)*obj.speed
+            obj.x_speed = -controller_obj.get_axis(0)*obj.speed*2
+            obj.y_speed = -controller_obj.get_axis(1)*obj.speed*2
         else:
             obj.x_speed = 0
             obj.y_speed = 0
@@ -247,6 +248,11 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
 
     running = True
     while running:
+        if dist((fighter.x, fighter.y), (pg.mouse.get_pos()[0], pg.mouse.get_pos()[1])) >= 5:
+            fighter.angle = get_angle((fighter.x, fighter.y), (pg.mouse.get_pos()[0], pg.mouse.get_pos()[1]))+180
+            fighter.stop = False
+        else:
+            fighter.stop = True
         for event in pg.event.get():
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
@@ -255,12 +261,8 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                 if fighter.control:
                     if event.key == pg.K_a:
                         fighter.left = True
-                        if fighter.dodge_ready:
-                            fighter.dodge = True
                     if event.key == pg.K_d:
                         fighter.right = True
-                        if fighter.dodge_ready:
-                            fighter.dodge = True
                     if event.key == pg.K_w:
                         fighter.glide = True
                     if event.key == pg.K_s:
@@ -270,31 +272,12 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                 if fighter.control:
                     if event.key == pg.K_a:
                         fighter.left = False
-                        if not fighter.dodge_ready:
-                            fighter.dodge_ready = True
-                        if fighter.dodge:
-                            fighter.dodge = False
                     if event.key == pg.K_d:
                         fighter.right = False
-                        if not fighter.dodge_ready:
-                            fighter.dodge_ready = True
                     if event.key == pg.K_w:
                         fighter.glide = False
                     if event.key == pg.K_s:
                         fighter.brake = False
-                if event.key == pg.K_e:
-                    if fighter.guns is None:
-                        shoots.append(Shoot(fighter.x, fighter.y, fighter.actual_speed+10, fighter.lock_angle,
-                                            fighter.damage, red_blast, fighter))
-                        pg.mixer.Sound.play(laser)
-                    else:
-                        for gun in fighter.guns:
-                            nr = fighter.guns.index(gun)
-                            shoots.append(Shoot(fighter.x-sin(radians(fighter.angle+90))*gun,
-                                                fighter.y-cos(radians(fighter.angle+90))*gun,
-                                                fighter.actual_speed+10, fighter.lock_angles[nr],
-                                                fighter.damage, red_blast, fighter))
-                        pg.mixer.Sound.play(laser)
                 if "ion_attack" in fighter.abilities:
                     if event.key == pg.K_r:
                         if fighter.ions > 0:
@@ -328,6 +311,20 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                         fighter.glide = False
                     if event.key == pg.K_s:
                         fighter.brake = False
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if time() >= fighter.shot+fighter.fire_rate:
+                    if fighter.guns is None:
+                        shoots.append(Shoot(fighter.x, fighter.y, fighter.actual_speed+10, fighter.lock_angle,
+                                            fighter.damage, red_blast, fighter))
+                    else:
+                        for gun in fighter.guns:
+                            nr = fighter.guns.index(gun)
+                            shoots.append(Shoot(fighter.x-sin(radians(fighter.angle+90))*gun,
+                                                fighter.y-cos(radians(fighter.angle+90))*gun,
+                                                fighter.actual_speed+10, fighter.lock_angles[nr],
+                                                fighter.damage, red_blast, fighter))
+                    pg.mixer.Sound.play(laser)
+                    fighter.shot = time()
 
         screen.fill((0, 0, 0))
         if controllers > 0:
@@ -466,6 +463,7 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
 
         if time() <= fighter.flamethrower:
             flamethrower(fighter, fighter.speed+3, chance=8, spread=4)
+        show_text(str(int(5-(time()-fighter.damage_timeout))))
         fighter.run_move(controller)
         screen.blit(fighter.image,
                     (int(fighter.x - fighter.actual_size[0] / 2), int(fighter.y - fighter.actual_size[1] / 2)))
