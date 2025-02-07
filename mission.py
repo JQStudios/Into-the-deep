@@ -13,6 +13,7 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
     vibratetil = 0
     asteroidpng = pg.image.load("asteroid.png")
     dronepng = pg.image.load("drone.png")
+    ship_class = data[2]
     if ship_class == "X-Wing":
         fighter = XWing(image=xwingpng)
     elif ship_class == "Bomber":
