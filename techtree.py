@@ -9,7 +9,7 @@ xwingpng = pg.image.load("xwing.png")
 bomberpng = pg.image.load("bomber.png")
 xfieldmax = x_max
 yfieldmax = y_max
-
+logs = []
 GlobalAnimation = 1
 
 try:
@@ -22,51 +22,83 @@ except:
         print("File created")
 
 
-def show_text(content, color=(255, 255, 0), start_x=x_max/2, start_y=100, end_size=50, centring=0,
-              fat=False, italic=False):
+def show_text(content, color=(255, 255, 0), start_x=x_max/2, start_y=100, end_size=50, centring=0, 
+              fat=False, italic=False, alpha=255):
     text = content.split("\n")
     if len(text) >= 2:
         del text[0]
+
     font = pg.font.SysFont('ubuntumono', end_size, fat, italic)
     show_y = start_y
+
     for line in text:
         info = font.render(line, True, color)
+        info.set_alpha(alpha)
+
         if centring == 0:
-            screen.blit(info, (start_x-info.get_width()/2, show_y-info.get_height()/2))
+            screen.blit(info, (start_x - info.get_width() / 2, show_y - info.get_height() / 2))
         elif centring == 1:
-            screen.blit(info, (start_x, show_y-info.get_height()/2))
+            screen.blit(info, (start_x, show_y - info.get_height() / 2))
         else:
-            screen.blit(info, (start_x-info.get_width(), show_y-info.get_height()/2))
+            screen.blit(info, (start_x - info.get_width(), show_y - info.get_height() / 2))
+        
         show_y += info.get_height()
-    return show_y-start_y
 
+    return show_y - start_y
 
-def AnimatedText(Start_x, Start_y, End_x, End_y, content, time, type="c", color=(255, 255, 0), intervalSek=0, end_size=50, centring=0, updateinterval=0.1):
+def ResetAnimations():
     global GlobalAnimation
-    steps = int(time/updateinterval)
-    interval = int(intervalSek/updateinterval)
+    GlobalAnimation = 1
+
+def AnimatedText(Start_x, Start_y, End_x, End_y, content, time, type="constant", color=(255, 255, 0), intervalSek=0, AnimationGroup=False,
+                 end_size=50, centring=0, updateinterval=0.1):
+    # Types: constant, fade
+    # constant: constant movement text animation
+    # fade: constant fade text animation
+    # Time: How long should the animation take?(in sek), IntervalSek: How long should the interval be?(if you don't want an interval, set it to 0 or None), Update: How often should the animation be updated?(like frames)
+    # AnimationGroup: Select a leader wich you'll set animation group to False, the other animations you will set AnimationGroup to True the leader will do the tm.sleeps so the animations need to be equal in time and updateinterval
+    # ResetAnimations(): use it before you use new animtions
+    global GlobalAnimation, logs
+    steps = int(time / updateinterval)
+    if not intervalSek == None and not intervalSek == 0:
+        interval = int(intervalSek / updateinterval)
+    else:
+        interval = 0
     done = False
+
     if steps > GlobalAnimation:
-        GlobalAnimation += 1
-        if interval>GlobalAnimation:
+        if not AnimationGroup:
+            GlobalAnimation += 1
             tm.sleep(updateinterval)
-            x, y = Start_x, Start_y
-            show_text(content, color, x, y, end_size, centring=centring)
+        if interval > GlobalAnimation:
+            if type == "constant":
+                x, y = Start_x, Start_y
+                alpha = 255
+            elif type == "fade":
+                x, y = End_x, End_y
+                alpha = int(Start_x)
+            show_text(content, color, x, y, end_size, centring=centring, alpha=alpha)
         else:
-            tm.sleep(updateinterval)
             LocalGlobalAnimation = (GlobalAnimation - interval) / (steps - interval)
-            if type == "c":
+
+            if type == "constant":
                 x = Start_x + LocalGlobalAnimation * (End_x - Start_x)
                 y = Start_y + LocalGlobalAnimation * (End_y - Start_y)
-                show_text(content, color, x, y, end_size, centring=centring)
-                print(LocalGlobalAnimation)
+                alpha = 255
+
+            elif type == "fade":
+                x, y = End_x, End_y
+                alpha = int(Start_x + LocalGlobalAnimation * (Start_y - Start_x))
+                alpha = max(0, min(255, alpha))
+
+            show_text(content, color, x, y, end_size, centring=centring, alpha=alpha)
     else:
         done = True
-        x = End_x
-        y = End_y
-        show_text(content, color, x, y, end_size, centring=centring)
+        x, y = End_x, End_y
+        alpha = int(Start_y) if type == "fade" else 255
+        show_text(content, color, x, y, end_size, centring=centring, alpha=alpha)
+    
     return done
-
 
 def InfoBox(x, y, size_x, size_y, Title, Unlocketion,  color=(255, 255, 0), textColor=(255, 255, 255)):
     pg.draw.rect(screen, (color), (x, y, size_x, size_y))

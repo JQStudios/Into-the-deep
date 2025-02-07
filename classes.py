@@ -4,6 +4,7 @@ from random import *
 from time import *
 import json
 import re
+import os
 # Save settings
 
 SETTINGS_FILE = "settings.json"
@@ -456,7 +457,7 @@ class Bot(Ship):
 
 class XWing(Ship):
     def __init__(self, image, abilities=None, xp=0):
-        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/1000, agility=1, fire_rate=0.5, hp=80,
+        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/2000, agility=1.5, fire_rate=0.5, hp=80,
                          cooldown=5, damage=5, size=x_max/50, image=image, guns=[-x_max/100, x_max/100], xp=xp)
         if abilities is None:
             abilities = ["flamethrower"]

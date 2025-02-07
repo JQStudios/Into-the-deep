@@ -555,6 +555,7 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
 
 
 def DisplayResults(result, XP, reward, extra_exp):
+    ResetAnimations()
     running = True
     TotalXPDelta = XP - extra_exp
     XPDelta = 0
@@ -562,17 +563,33 @@ def DisplayResults(result, XP, reward, extra_exp):
     while running:
         for event in pg.event.get():
             if event.type == pg.KEYDOWN:
-                if event.key == pg.K_ESCAPE:
-                    running = False
+                if event.key == pg.K_SPACE:
+                        done = False
+                        ResetAnimations()
+                        if result == True:
+                            while not done:
+                                screen.fill((0, 0, 0))
+                                done = AnimatedText(255, 0, x_max/2, y_max/3, f"Battle Won", 0.5, "fade", (255,255,255), None, False, 200, 0, 0.01)
+                                AnimatedText(255, 0, x_max/2, y_max/2, f"Reward: {reward}", 0.5, "fade", (255,255,255), None, True, 50, 0, 0.01)
+                                AnimatedText(255, 0, x_max/2, y_max/2+50, f"XP: {extra_exp}", 0.5, "fade", (255,255,255), None, True, 50, 0, 0.01)
+                                AnimatedText(255, 0, x_max/2, y_max/2+100, f"Total XP: {XP}", 0.5, "fade", (255,255,255), None, True, 50, 0, 0.01)
+                                pg.display.update()
+                        else:
+                            while not done:
+                                screen.fill((0, 0, 0))
+                                done = AnimatedText(255, 0, x_max/2, y_max/2, f"Battle Lost", 0.5, "fade", (255,0,0), None, False, 200, 0, 0.01)
+                                pg.display.update()
+                        running = False
         screen.fill((0, 0, 0))
         TotalXPDelta = min(TotalXPDelta + 0.5, XP)
         RewardDelta = min(RewardDelta + 0.5, reward)
         XPDelta = min(XPDelta + 0.7, extra_exp)
-        if result == True:
-            if AnimatedText(x_max/2, y_max/2, x_max/2, y_max/3, f"Battle Won", 5, "c", (255,255,255), 2, 200):
+        if result == True and running == True:
+            if AnimatedText(x_max/2, y_max/2, x_max/2, y_max/3, f"Battle Won", 5, "constant", (255,255,255), 2, False, 200):
                 show_text(f"Reward: {int(RewardDelta)}", (255, 255, 255), x_max/2, y_max/2)
                 show_text(f"XP: {int(XPDelta)}", (255, 255, 255), x_max/2, y_max/2+50)
                 show_text(f"Total XP: {int(TotalXPDelta)}", (255, 255, 255), x_max/2, y_max/2+100)
-        if result == False:
+        if result == False and running == True:
             show_text(f"Battle Lost", (255,0,0), x_max/2, y_max/2, 200)
+        show_text("Press Space to continue", (255, 255, 255), x_max/2, y_max - y_max / 10, 40)
         pg.display.update()
