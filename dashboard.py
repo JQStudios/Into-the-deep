@@ -10,7 +10,7 @@ pg.display.set_caption("Dashboard")
 buttons = []
 running = True
 message = None
-size_x, size_y =  button_dynamic_size(100, 100, y_max - y_max / 6, 200)
+size_x, size_y = button_dynamic_size(100, 100, y_max - y_max / 6, 200)
 while running:
     buttons = []
     screen.fill((0, 0, 0))

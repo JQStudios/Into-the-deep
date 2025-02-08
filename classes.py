@@ -54,7 +54,7 @@ pg.init()
 x_max, y_max = screen.get_size()
 pg.key.set_repeat(20, 20)
 pg.joystick.init()
-controllers = pg.joystick.get_count()
+controllers = pg.joystick.get_count()-1000
 if controllers > 0:
     controller = pg.joystick.Joystick(0)
     controller.init()
@@ -255,6 +255,7 @@ class Ship(pg.sprite.Sprite):
         self.damage_timeout = 0
         self.xp = xp
         self.weapon = 0
+        self.stop = False
 
     def minus_shield(self, damage):
         self.damage_timeout = time()
@@ -307,13 +308,6 @@ class Ship(pg.sprite.Sprite):
                         vibrating = True
             else:
                 vibrating = False
-            if self.shield < 0:
-                self.shield = 0
-            if time() >= self.damage_timeout + 5:
-                if self.shield < self.max_shield:
-                    self.shield += 0.05 * timeout
-                else:
-                    self.shield = self.max_shield
             self.image = pg.transform.rotate(self.org_image, self.angle)
             self.actual_size = [self.image.get_width(), self.image.get_height()]
         else:
@@ -322,24 +316,12 @@ class Ship(pg.sprite.Sprite):
             if not self.control:
                 if time() >= self.control_time:
                     self.control = True
-            if self.left_dodge:
-                self.x -= sin(radians(self.angle + 90)) * self.speed * 2
-                self.y -= cos(radians(self.angle + 90)) * self.speed * 2
-            if self.right_dodge:
-                self.x -= sin(radians(self.angle - 90)) * self.speed * 2
-                self.y -= cos(radians(self.angle - 90)) * self.speed * 2
             if self.left:
-                if self.dodge:
-                    self.x -= sin(radians(self.angle+90))*self.speed*2
-                    self.y -= cos(radians(self.angle+90))*self.speed*2
-                else:
-                    self.angle += self.agility
+                self.x -= sin(radians(self.angle + 90)) * self.speed * timeout
+                self.y -= cos(radians(self.angle + 90)) * self.speed * timeout
             if self.right:
-                if self.dodge:
-                    self.x -= sin(radians(self.angle-90))*self.speed*2
-                    self.y -= cos(radians(self.angle-90))*self.speed*2
-                else:
-                    self.angle -= self.agility
+                self.x -= sin(radians(self.angle - 90)) * self.speed * timeout
+                self.y -= cos(radians(self.angle - 90)) * self.speed * timeout
             if self.angle >= 360:
                 self.angle -= 360
             elif self.angle < 0:
@@ -357,7 +339,7 @@ class Ship(pg.sprite.Sprite):
             else:
                 self.actual_speed = 0
 
-            if not self.brake:
+            if not self.brake and not self.stop:
                 if self.glide:
                     self.x_speed += sin(radians(self.angle))*self.actual_speed/100*timeout
                     self.y_speed += cos(radians(self.angle))*self.actual_speed/100*timeout
@@ -374,7 +356,7 @@ class Ship(pg.sprite.Sprite):
             else:
                 self.actual_speed = 0
 
-            if (not self.dodge) and (not self.left_dodge) and (not self.right_dodge):
+            if not self.left and not self.right:
                 self.x -= sin(radians(self.angle))*self.actual_speed*timeout
                 self.y -= cos(radians(self.angle))*self.actual_speed*timeout
                 self.x -= self.x_speed
@@ -392,6 +374,14 @@ class Ship(pg.sprite.Sprite):
             if self.y >= y_max:
                 self.y = y_max
                 self.minus_shield(0.05 * timeout)
+
+            if self.shield < 0:
+                self.shield = 0
+            if time() >= self.damage_timeout + 5:
+                if self.shield < self.max_shield:
+                    self.shield += 0.05 * timeout
+                else:
+                    self.shield = self.max_shield
 
 
 class Bot(Ship):
@@ -457,7 +447,7 @@ class Bot(Ship):
 
 class XWing(Ship):
     def __init__(self, image, abilities=None, xp=0):
-        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/2000, agility=1.5, fire_rate=0.5, hp=80,
+        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/3000, agility=1.5, fire_rate=0.5, hp=80,
                          cooldown=5, damage=5, size=x_max/50, image=image, guns=[-x_max/100, x_max/100], xp=xp)
         if abilities is None:
             abilities = ["flamethrower"]
@@ -477,7 +467,7 @@ class XWing(Ship):
 
 class Bomber(Ship):
     def __init__(self, image, abilities=None, xp=0):
-        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/2000, agility=0.6, fire_rate=0.25, hp=120,
+        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/5000, agility=0.6, fire_rate=0.25, hp=120,
                          cooldown=5, damage=6, size=x_max/25, hitbox=x_max/30, image=image,
                          guns=[-x_max/50, x_max/50], xp=xp)
         if abilities is None:
