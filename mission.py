@@ -583,7 +583,7 @@ def DisplayResults(result, XP, reward, extra_exp):
         screen.fill((0, 0, 0))
         TotalXPDelta = min(TotalXPDelta + 0.5, XP)
         RewardDelta = min(RewardDelta + 0.5, reward)
-        XPDelta = min(XPDelta + 0.7, extra_exp)
+        XPDelta = min(XPDelta + 0.5, extra_exp)
         if result == True and running == True:
             if AnimatedText(x_max/2, y_max/2, x_max/2, y_max/3, f"Battle Won", 5, "constant", (255,255,255), 2, False, 200):
                 show_text(f"Reward: {int(RewardDelta)}", (255, 255, 255), x_max/2, y_max/2)
