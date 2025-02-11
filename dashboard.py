@@ -32,9 +32,9 @@ while running:
     message = get_message()
     
     if message:
-        message.update()
         if message.is_done():
             message = None
-
+# Level Bar
+    LevelBar(x_max/4, y_max/50, x_max/2, y_max/15, screen)
     pg.display.update()
 pg.quit()

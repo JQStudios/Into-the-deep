@@ -16,12 +16,12 @@ data = LoadData()
 
 
 def show_text(content, color=(255, 255, 0), start_x=x_max/2, start_y=100, end_size=50, centring=0, 
-              fat=False, italic=False, alpha=255):
+              fat=False, italic=False, alpha=255, font = None):
     text = content.split("\n")
     if len(text) >= 2:
         del text[0]
-
-    font = pg.font.SysFont('ubuntumono', end_size, fat, italic)
+    if font == None:
+        font = pg.font.SysFont('ubuntumono', end_size, fat, italic)
     show_y = start_y
 
     for line in text:

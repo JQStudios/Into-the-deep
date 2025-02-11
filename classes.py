@@ -21,6 +21,8 @@ key = base64.urlsafe_b64encode(kdf.derive(password))
 SETTINGS_FILE = "settings.json"
 
 
+
+
 def in_rect(pos, rect):
     if (rect[0] <= pos[0] <= rect[2]) and (rect[1] <= pos[1] <= rect[3]):
         return True
@@ -57,6 +59,7 @@ def LoadData():
         print("Could not find Data file. Creating a new one.")
         DefaultData = {
             "Balance": 0,
+            "TotalXP": 0,
             "ShipsData": {
                 "X-Wing": {
                     "Name": "X-Wing",
@@ -103,6 +106,16 @@ def save_settings(settings):
         json.dump(settings, file, indent=4)
 
 settings = load_settings()
+
+
+# Level System
+
+def GetLevel():
+    buffer = 0.8 # + buffer = harder, - buffer = easier
+    TotalXP = LoadData()["TotalXP"]
+    level = max(0, ((TotalXP / 1000) ** buffer))
+    return level
+
 
 if settings["display"]["size"] == "FULLSCREEN":
     pg.init()

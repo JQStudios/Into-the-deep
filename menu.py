@@ -1,5 +1,5 @@
 import pygame as pg
-from classes import screen, x_max, y_max, settings, save_settings
+from classes import screen, x_max, y_max, settings, save_settings, LoadData
 from mission import PlayMission
 from credits import play_video
 import sys, subprocess
@@ -7,6 +7,7 @@ import time
 from techtree import *
 import random
 import ast
+import math
 
 
 def dashboard():
@@ -75,6 +76,7 @@ if 'Missions' not in globals():
     Missions = []
 pg.font.init() 
 font = pg.font.Font("assets/fonts/Starjedi.ttf", 22)
+BigFont = pg.font.Font("assets/fonts/Starjedi.ttf", 33)
 DescriptionFont = pg.font.Font("assets/fonts/Starjedi.ttf", 12)
 color_hover=(175,175,175)
 color_normal=(255,255,255)
@@ -416,3 +418,24 @@ def SelectMissions():
         )
         i += 1
     return Missions
+
+# Level System
+
+def LevelBar(x,y, size_x, size_y, screen):
+    level = GetLevel()
+    BaseLevel = math.floor(level)
+    NextLevel = BaseLevel+1
+    # Base Level Text
+    pg.draw.rect(screen, (135, 145, 153), (x - x_max / 25, y, (x - (x - (x_max / 50)))*2, size_y))
+    show_text(str(BaseLevel), (0, 0, 0), x - x_max / 50 , y + size_y/2, 50, 0, False, False, 255, None)
+    # Next Level Text
+    pg.draw.rect(screen, (135, 145, 153), (x + size_x, y, (x - (x - (x_max / 50)))*2, size_y))
+    show_text(str(NextLevel), (0, 0, 0), x + size_x + x_max / 50 , y + size_y/2, 50, 0, False, False, 255, None)
+    pg.draw.rect(screen, (44, 117, 255), (x, y, size_x * (level % 1), size_y))
+    # Hollow Level Bar
+    i = 1
+    while i <= 10:
+        pg.draw.rect(screen, (255,255,255), (x + (i-1) * (size_x/10), y, size_x/10, size_y), int(x_max/600))
+        i += 1
+
+

@@ -551,8 +551,9 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
             "XP": fighter.xp
         }
     data["Balance"] = currency
+    data["TotalXP"] += fighter.xp - startXP
     SaveData(data)
-    DisplayResults(result, fighter.xp, reward, fighter.xp-startXP)
+    DisplayResults(result, data["TotalXP"], reward, fighter.xp-startXP)
 
 
 def DisplayResults(result, XP, reward, extra_exp):
