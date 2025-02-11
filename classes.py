@@ -5,6 +5,17 @@ from time import *
 import json
 import re
 import os
+# Encrypton
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.backends import default_backend
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes  
+import base64
+
+password = b"Gioni boss du geile"
+salt = b"921023"
+kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100000, backend=default_backend())
+key = base64.urlsafe_b64encode(kdf.derive(password))
 # Save settings
 
 SETTINGS_FILE = "settings.json"
@@ -34,6 +45,57 @@ def load_settings():
         }
         save_settings(default_settings)
         return default_settings
+def LoadData():
+    try:
+        fernet = Fernet(key)
+        with open("data.json", "rb") as file:
+            ENCDATA = file.read()
+        DECDATA = fernet.decrypt(ENCDATA)
+        data = json.loads(DECDATA.decode())
+        return data
+    except FileNotFoundError:
+        print("Could not find Data file. Creating a new one.")
+        DefaultData = {
+            "Balance": 0,
+            "ShipsData": {
+                "X-Wing": {
+                    "Name": "X-Wing",
+                    "XP": 0
+                }
+            }
+        }
+
+        SaveData(DefaultData)
+        return DefaultData
+    # Debug Method
+    #try:
+    #    with open("data.json", "r") as file:
+    #        data = json.load(file)
+    #        return data
+    #except FileNotFoundError:
+    #    print("Could not find Data file. Creating a new one.")
+    #    DefaultData = {
+    #        "Balance": 0,
+    #        "ShipsData": {
+    #            "X-Wing": {
+    #                "Name": "X-Wing",
+    #                "XP": 0
+    #            }
+    #        }
+    #    }
+#
+    #    SaveData(DefaultData)
+    #    return DefaultData
+
+def SaveData(data):
+    fernet = Fernet(key)
+    dataSTR = json.dumps(data)
+    ENCDATA = fernet.encrypt(dataSTR.encode())
+    with open("data.json", "wb") as file:
+        file.write(ENCDATA)
+    # Debug Method
+    #with open("data.json", "w") as file:
+    #    json.dump(data, file, indent=4)
 
 # save settings
 def save_settings(settings):

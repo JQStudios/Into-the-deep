@@ -9,7 +9,7 @@ laser.set_volume(0.2)
 def PlayMission(ship_class, fighters, botcount, mode, reward):
     XP = 0
     result = False
-    currency = data[0]
+    currency = data["Balance"]
     vibratetil = 0
     asteroidpng = pg.image.load("asteroid.png")
     dronepng = pg.image.load("drone.png")
@@ -18,10 +18,10 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
         fighter = XWing(image=xwingpng)
     elif ship_class == "Bomber":
         fighter = Bomber(image=bomberpng)
-    for xp in data[1]:
-        if xp[0] == fighter.name:
-            fighter.xp = xp[1]
-            startXP = xp[1]
+    for ShipData in data["ShipsData"].values():
+        if ShipData["Name"] == fighter.name:
+            fighter.xp = ShipData["XP"]
+            startXP = ShipData["XP"]
             break
     objects = []
     for nr in range(0, 16):
@@ -540,16 +540,18 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                 controller.stop_rumble()
 
     found = False
-    for xp in data[1]:
-        if xp[0] == fighter.name:
-            xp[1] = fighter.xp
+    for ShipData in data["ShipsData"].values():
+        if ShipData["Name"] == fighter.name:
+            ShipData["XP"] = fighter.xp
             found = True
             break
     if not found:
-        data[1].append([fighter.name, fighter.xp])
-    data[0] = currency
-    with open("data.json", "w") as outfile:
-        json.dump(data, outfile)
+        data["ShipsData"][fighter.name] = {
+            "Name": fighter.name,
+            "XP": fighter.xp
+        }
+    data["Balance"] = currency
+    SaveData(data)
     DisplayResults(result, fighter.xp, reward, fighter.xp-startXP)
 
 

@@ -3,7 +3,7 @@ import json
 import time as tm
 import random
 
-data = [0, []]
+data = []
 level = 0
 xwingpng = pg.image.load("xwing.png")
 bomberpng = pg.image.load("bomber.png")
@@ -12,14 +12,7 @@ yfieldmax = y_max
 logs = []
 GlobalAnimation = 1
 
-try:
-    with open('data.json') as f:
-        data = json.load(f)
-        print(data)
-except:
-    with open("data.json", "w") as outfile:
-        json.dump(data, outfile)
-        print("File created")
+data = LoadData()
 
 
 def show_text(content, color=(255, 255, 0), start_x=x_max/2, start_y=100, end_size=50, centring=0, 
@@ -134,7 +127,7 @@ def treeing():
                                [ship.x-ship.image.get_width()/2, ship.y-ship.image.get_height()/2,
                                 ship.x+ship.image.get_width()/2, ship.y+ship.image.get_height()/2]):
                         if ship.own:
-                            data[2] = ship.name
+                            pass
             if event.type == pg.MOUSEBUTTONDOWN:
                 overwritelines = True
                 Selected_x, Selected_y = pg.mouse.get_pos()
@@ -152,18 +145,18 @@ def treeing():
                             if ship.root is not None and ship.own == False:
                                 ship.own = True
                                 found = False
-                                for xp in data[1]:
-                                    if xp[0] == ship.root.name:
-                                        xp[1] = xp[1] - ship.price
+                                for shipdata in data["ShipsData"].values():
+                                    if shipdata["Name"] == ship.root.name:
+                                        shipdata["XP"] = shipdata["XP"] - ship.price
                                         found = True
                                         break
                                 if not found:
                                     print("Couldn't find root ship")
                                     ship.own = False
-        for xp in data[1]:
+        for ShipData in data["ShipsData"].values():
             for ship in ships:
-                if xp[0] == ship.name:
-                    ship.xp = xp[1]
+                if ShipData["Name"] == ship.name:
+                    ship.xp = ShipData["XP"]
                     if ship.xp > 0:
                         ship.own = True
         for ship in ships:
@@ -191,7 +184,7 @@ def treeing():
             if ship.root is not None and overwritelines is False:
                 pg.draw.line(screen, (150, 150, 150), (ship.x, ship.y), (ship.root.x, ship.root.y))
                 if ship.root.xp >= 1000:
-                    if data[0] >= ship.price:
+                    if data["Balance"] >= ship.price:
                         ship.buy = True
             screen.blit(ship.image, (ship.x-ship.image.get_width()/2, ship.y-ship.image.get_height()/2))
             color = (100, 100, 100)
@@ -203,5 +196,4 @@ def treeing():
                                          ship.image.get_width(), ship.image.get_height()], 2)
         pg.display.update()
 
-    with open("data.json", "w") as outfile:
-        json.dump(data, outfile)
+    SaveData(data)
