@@ -110,9 +110,11 @@ settings = load_settings()
 
 # Level System
 
-def GetLevel():
+def GetLevel(debugXP=None):
     buffer = 0.8 # + buffer = harder, - buffer = easier
     TotalXP = LoadData()["TotalXP"]
+    if not debugXP == None:
+        TotalXP = debugXP
     level = max(0, ((TotalXP / 1000) ** buffer))
     return level
 
