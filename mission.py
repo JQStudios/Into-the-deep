@@ -20,6 +20,7 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
         fighter = Bomber(image=bomberpng)
     for ShipData in data["ShipsData"].values():
         if ShipData["Name"] == fighter.name:
+            print(ShipData["XP"])
             fighter.xp = ShipData["XP"]
             startXP = ShipData["XP"]
             break

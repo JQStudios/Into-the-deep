@@ -16,13 +16,15 @@ data = LoadData()
 
 
 def show_text(content, color=(255, 255, 0), start_x=x_max/2, start_y=100, end_size=50, centring=0, 
-              fat=False, italic=False, alpha=255, font = None):
+              fat=False, italic=False, alpha=255, font=None):
     text = content.split("\n")
     if len(text) >= 2:
         del text[0]
-    if font == None:
+    if font is None:
         font = pg.font.SysFont('ubuntumono', end_size, fat, italic)
+        
     show_y = start_y
+    max_width = 0
 
     for line in text:
         info = font.render(line, True, color)
@@ -35,9 +37,13 @@ def show_text(content, color=(255, 255, 0), start_x=x_max/2, start_y=100, end_si
         else:
             screen.blit(info, (start_x - info.get_width(), show_y - info.get_height() / 2))
         
+        max_width = max(max_width, info.get_width())
+        
         show_y += info.get_height()
 
-    return show_y - start_y
+    total_height = show_y - start_y
+
+    return max_width, total_height
 
 def ResetAnimations():
     global GlobalAnimation

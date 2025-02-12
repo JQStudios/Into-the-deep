@@ -47,6 +47,8 @@ def dashboard():
                 message = None
 # Level Bar
         LevelBar(x_max/4, y_max/50, x_max/2, y_max/15, screen)
+# Balance  
+        ShowBalance(x_max - x_max/7, y_max / 20, screen)
         pg.display.update()
         pg.display.update()
 
@@ -56,6 +58,7 @@ ImageHover = pg.image.load("ButtonHover2.png")
 MissionImageNormal = pg.image.load("MissionSelectiontile.png")
 MissionImageHover = pg.image.load("MissionSelectiontileHover.png")
 BackgroundImg = pg.image.load("MainBackground.png")
+CoinImg = pg.image.load("coins-solid.png")
 if 'MenuDisplayID' not in globals():
     MenuDisplayID = 0
 if 'NewMessage' not in globals():
@@ -441,3 +444,12 @@ def LevelBar(x,y, size_x, size_y, screen):
         i += 1
 
 
+# Balance system
+def ShowBalance(x, y, screen):
+    Balance = LoadData()["Balance"]
+    text_size_x, text_size_y = show_text(str(Balance), (0,0,0), x, y, 50, 1)
+    ScaledCoinsImg = pg.transform.scale(CoinImg, (50,50))
+    TotalSizeX = text_size_x + ScaledCoinsImg.get_width()
+    pg.draw.rect(screen, (135, 145, 153), (x - TotalSizeX / 8, y - text_size_y/1.2, TotalSizeX * 1.5, text_size_y * 1.7))
+    screen.blit(ScaledCoinsImg, (x + text_size_x + x_max/50, y - (ScaledCoinsImg.get_height() / 2) - 5))
+    show_text(str(Balance), (0,0,0), x, y, 50, 1)
