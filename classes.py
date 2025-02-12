@@ -60,10 +60,13 @@ def LoadData():
         DefaultData = {
             "Balance": 0,
             "TotalXP": 0,
+            "Selection": "X-Wing",
             "ShipsData": {
                 "X-Wing": {
                     "Name": "X-Wing",
-                    "XP": 0
+                    "XP": 0,
+                    "Owned": True,
+                    "Bought": True
                 }
             }
         }
@@ -535,8 +538,9 @@ class XWing(Ship):
         self.name = "X-Wing"
         self.root = None
         self.own = True
-        self.buy = False
+        self.buy = True
         self.price = 1000
+        self.UnlockXP = 0
         self.shop_x = 0.5
         self.shop_y = 0.1
         print(self.speed)
@@ -557,6 +561,7 @@ class Bomber(Ship):
         self.root = "X-Wing"
         self.own = False
         self.buy = False
-        self.price = 2000
+        self.price = 1200
+        self.UnlockXP = 2000
         self.shop_x = 0.5
         self.shop_y = 0.2

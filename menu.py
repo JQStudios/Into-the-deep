@@ -48,7 +48,7 @@ def dashboard():
 # Level Bar
         LevelBar(x_max/4, y_max/50, x_max/2, y_max/15, screen)
 # Balance  
-        ShowBalance(x_max - x_max/7, y_max / 20, screen)
+        ShowBalance(x_max, y_max / 50, screen)
         pg.display.update()
         pg.display.update()
 
@@ -59,6 +59,7 @@ MissionImageNormal = pg.image.load("MissionSelectiontile.png")
 MissionImageHover = pg.image.load("MissionSelectiontileHover.png")
 BackgroundImg = pg.image.load("MainBackground.png")
 CoinImg = pg.image.load("coins-solid.png")
+CoingImgWhite = pg.image.load("coins-solid-white.png")
 if 'MenuDisplayID' not in globals():
     MenuDisplayID = 0
 if 'NewMessage' not in globals():
@@ -85,7 +86,7 @@ BigFont = pg.font.Font("assets/fonts/Starjedi.ttf", 33)
 DescriptionFont = pg.font.Font("assets/fonts/Starjedi.ttf", 12)
 color_hover=(175,175,175)
 color_normal=(255,255,255)
-
+GlobalCoinAnimation = 1
 
 # Classes
 
@@ -229,7 +230,7 @@ def CreateMenu(x, y, size_x, size_y, button_count, spacing, SelfMenuDisplayID, d
 def DisplayMenus(buttons, mousepos=[0,0]):
     if buttons != None:
             for button in buttons:
-                if check_button(button, mousepos):
+                if CheckButton(button.x, button.y, button.size_x, button.size_y, mousepos):
                     button.drawButton(button.x, button.y, screen, False)
                 else:
                     button.drawButton(button.x, button.y, screen, True)
@@ -237,7 +238,7 @@ def DisplayMenus(buttons, mousepos=[0,0]):
 def CheckMenu(buttons, mousepos=[0,0]):
     i=0
     for button in buttons:
-        if check_button(button, mousepos):
+        if CheckButton(button.x, button.y, button.size_x, button.size_y, mousepos):
             execButtonAction(button.action, button.x, button.y)
         i+=1
 
@@ -366,11 +367,13 @@ def calculate_fullscreen_dimensions(image_width, image_height, screen_width, scr
     return new_width, new_height
 
 
-def check_button(button, pos):
-    if (button.x <= pos[0] <= button.x +button.size_x) and \
-        (button.y <= pos[1] <= button.y+button.size_y):
+
+def CheckButton(x, y, size_x, size_y, pos):
+    if (x <= pos[0] <= x +size_x) and \
+        (y <= pos[1] <= y+size_y):
         return True
     
+
 def button_dynamic_size(original_width, original_height, y, size_x=None):
     aspect_ratio = original_width / original_height
     size_y = int(size_x * aspect_ratio)
@@ -445,11 +448,28 @@ def LevelBar(x,y, size_x, size_y, screen):
 
 
 # Balance system
-def ShowBalance(x, y, screen):
+def ShowBalance(x, y, screen, color=(0,0,0)):
+    global GlobalCoinAnimation
     Balance = LoadData()["Balance"]
-    text_size_x, text_size_y = show_text(str(Balance), (0,0,0), x, y, 50, 1)
-    ScaledCoinsImg = pg.transform.scale(CoinImg, (50,50))
-    TotalSizeX = text_size_x + ScaledCoinsImg.get_width()
-    pg.draw.rect(screen, (135, 145, 153), (x - TotalSizeX / 8, y - text_size_y/1.2, TotalSizeX * 1.5, text_size_y * 1.7))
-    screen.blit(ScaledCoinsImg, (x + text_size_x + x_max/50, y - (ScaledCoinsImg.get_height() / 2) - 5))
-    show_text(str(Balance), (0,0,0), x, y, 50, 1)
+    if color == (255,255,255):
+        ScaledCoinsImg = pg.transform.scale(CoingImgWhite, (50,50))
+    else:
+        ScaledCoinsImg = pg.transform.scale(CoinImg, (50,50))
+    text_size_x, text_size_y = show_text(str(Balance), (color), x * GlobalCoinAnimation, y, 50, 1, False, False, 0)
+    if CheckButton(x - ScaledCoinsImg.get_width(), y, ScaledCoinsImg.get_width(), ScaledCoinsImg.get_height(), pg.mouse.get_pos()):
+        print("Opening Balance")
+        screen.blit(ScaledCoinsImg, ((x  * GlobalCoinAnimation) - ScaledCoinsImg.get_width() - 10, y))
+        text_size_x, text_size_y = show_text(str(Balance), (color), x * GlobalCoinAnimation, y + text_size_y / 1.5, 50, 1)
+        if GlobalCoinAnimation >= (x_max-text_size_x)/x_max:
+            print((x_max-text_size_x)/x_max)
+            GlobalCoinAnimation -= 0.002
+    else:
+        screen.blit(ScaledCoinsImg, ((x  * GlobalCoinAnimation) - ScaledCoinsImg.get_width() - 10, y))
+        text_size_x, text_size_y = show_text(str(Balance), (color), x * GlobalCoinAnimation, y + text_size_y / 1.5, 50, 1)
+        if GlobalCoinAnimation < 1:
+            GlobalCoinAnimation += 0.002
+    
+
+    
+    
+    #pg.draw.rect(screen, (135, 145, 153), (x - TotalSizeX / 8, y - text_size_y/1.2, TotalSizeX * 1.5, text_size_y * 1.7))

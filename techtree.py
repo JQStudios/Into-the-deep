@@ -2,6 +2,8 @@ from classes import *
 import json
 import time as tm
 import random
+import math
+import menu
 
 data = []
 level = 0
@@ -13,6 +15,7 @@ logs = []
 GlobalAnimation = 1
 
 data = LoadData()
+
 
 
 def show_text(content, color=(255, 255, 0), start_x=x_max/2, start_y=100, end_size=50, centring=0, 
@@ -99,6 +102,37 @@ def AnimatedText(Start_x, Start_y, End_x, End_y, content, time, type="constant",
     
     return done
 
+import math
+import pygame as pg
+
+def ZoomInRect(screen, center, min_size, progress):
+    done = False
+    alpha = min(255, int(255 * progress * 2))
+
+    ease_in = 1 - math.cos((progress * math.pi) / 2)
+    
+    max_size = (min_size[0] * 6, min_size[1] * 6)  
+    current_width = max_size[0] - (max_size[0] - min_size[0]) * ease_in
+    current_height = max_size[1] - (max_size[1] - min_size[1]) * ease_in
+    if current_width <= min_size[0]:
+        current_width = min_size[0]
+        current_height = min_size[1]
+        done = True
+
+
+    rect = pg.Rect(0, 0, current_width, current_height)
+    rect.center = center
+
+    surface = pg.Surface((rect.width, rect.height), pg.SRCALPHA)
+    
+    border_color = (0, 255, 0, alpha)
+    border_width = 2
+
+    pg.draw.rect(surface, border_color, surface.get_rect(), border_width)
+
+    screen.blit(surface, rect.topleft)
+
+    return done
 def InfoBox(x, y, size_x, size_y, Title, Unlocketion,  color=(255, 255, 0), textColor=(255, 255, 255)):
     pg.draw.rect(screen, (color), (x, y, size_x, size_y))
     show_text(Title, textColor, x + size_x / 20, y + size_y / 4, 50, 1, True, False)
@@ -113,10 +147,17 @@ def treeing():
         i += 1
     used = True
     ships = [XWing(xwingpng, None, 0), Bomber(bomberpng, None, 0)]
+    for ship in ships:
+        for shipdata in data["ShipsData"].values():
+            if ship.name == shipdata["Name"]:
+                ship.own = shipdata["Owned"]
+                ship.buy = shipdata["Bought"]
+                print(f"{ship.name}: owned: {ship.own}, bought: {ship.buy}")
     overwritelines = True
     Selected_x, Selected_y = 0, 0
     start, end, t = (0, 0), (0, 0), 0
     blink = 0
+    zoom_active = False
     while used:
         screen.fill((0, 0, 0))
         for star in stars:
@@ -128,6 +169,8 @@ def treeing():
             if event.type == pg.MOUSEBUTTONUP:
                 start, end, t = (0, 0), (0, 0), 0
                 overwritelines = False
+                zoom_active = False
+                zoom_progress = 0
                 for ship in ships:
                     if in_rect(pg.mouse.get_pos(),
                                [ship.x-ship.image.get_width()/2, ship.y-ship.image.get_height()/2,
@@ -141,6 +184,25 @@ def treeing():
                     if ship.x - ship.image.get_width()/2 < Selected_x < ship.x+ship.image.get_width()/2 and ship.y - ship.image.get_width()/2 < Selected_y < ship.y+ship.image.get_height()/2:
                             if ship.root is not None:
                                 start, end, t = (ship.root.x, ship.root.y), (ship.x, ship.y), 0
+                            if ship.own:
+                                print(ship.name)
+                                zoom_active = True
+                                zoom_progress = 0
+                                zoom_x, zoom_y, zoom_min_size_x, zoom_min_size_y = ship.x, ship.y, ship.image.get_width(), ship.image.get_height()
+                                zoom_speed = 0.002
+                                zoom_action = "buy"
+                            if ship.buy:
+                                zoom_active = True
+                                zoom_progress = 0
+                                zoom_x, zoom_y, zoom_min_size_x, zoom_min_size_y = ship.x, ship.y, ship.image.get_width(), ship.image.get_height()
+                                zoom_speed = 0.02
+                                zoom_action = "select"
+        if zoom_active:
+            zoom_progress += zoom_speed
+            if ZoomInRect(screen, (zoom_x, zoom_y), (zoom_min_size_x, zoom_min_size_y), zoom_progress) and zoom_action == "buy":
+                for ship in ships:
+                    if ship.x == zoom_x:
+                        data["Balance"] -= ship.price
         if overwritelines:
             t = min(t + 0.00025, 1) 
             current_end = (start[0] + (end[0] - start[0]) * t, start[1] + (end[1] - start[1]) * t)
@@ -153,7 +215,7 @@ def treeing():
                                 found = False
                                 for shipdata in data["ShipsData"].values():
                                     if shipdata["Name"] == ship.root.name:
-                                        shipdata["XP"] = shipdata["XP"] - ship.price
+                                        shipdata["XP"] = shipdata["XP"] - ship.UnlockXP
                                         found = True
                                         break
                                 if not found:
@@ -169,17 +231,26 @@ def treeing():
             ship.x, ship.y = ship.shop_x*xfieldmax, ship.shop_y*yfieldmax
             if ship.x - ship.image.get_width()/2 < pg.mouse.get_pos()[0] < ship.x+ship.image.get_width()/2 and ship.y - ship.image.get_width()/2 < pg.mouse.get_pos()[1] < ship.y+ship.image.get_height()/2:
                     if ship.root is not None:
-                        if ship.price <= ship.root.xp:
+                        if ship.UnlockXP <= ship.root.xp and ship.own == False:
                             if blink >= 0 and blink <= 125:
-                                InfoBox(ship.x + ship.image.get_width()/3, ship.y+ship.image.get_height()/3, x_max/4, y_max/8, f"Hold To Unlock", f"{ship.root.name}: {ship.root.xp}/{ship.price}", (44, 117, 255))
+                                InfoBox(ship.x + ship.image.get_width()/3, ship.y+ship.image.get_height()/3, x_max/4, y_max/8, f"Hold To Unlock", f"{ship.root.name}: {ship.root.xp}/{ship.UnlockXP}", (44, 117, 255))
                                 blink += 1
                             if blink >= 125 and blink <= 250:
-                                InfoBox(ship.x + ship.image.get_width()/3, ship.y+ship.image.get_height()/3, x_max/4, y_max/8, f"{ship.name}", f"{ship.root.name}: {ship.root.xp}/{ship.price}", (44, 117, 255))
+                                InfoBox(ship.x + ship.image.get_width()/3, ship.y+ship.image.get_height()/3, x_max/4, y_max/8, f"{ship.name}", f"{ship.root.name}: {ship.root.xp}/{ship.UnlockXP}", (44, 117, 255))
+                                blink += 1
+                            if blink >= 250:
+                                blink = 0
+                        elif ship.price <= data["Balance"] and ship.buy == False:
+                            if blink >= 0 and blink <= 125:
+                                InfoBox(ship.x + ship.image.get_width()/3, ship.y+ship.image.get_height()/3, x_max/4, y_max/8, f"Hold To Buy", f"{ship.root.name}: {data["Balance"]}/{ship.price}", (44, 117, 255))
+                                blink += 1
+                            if blink >= 125 and blink <= 250:
+                                InfoBox(ship.x + ship.image.get_width()/3, ship.y+ship.image.get_height()/3, x_max/4, y_max/8, f"{ship.name}", f"{ship.root.name}: {data["Balance"]}/{ship.price}", (44, 117, 255))
                                 blink += 1
                             if blink >= 250:
                                 blink = 0
                         else:
-                            InfoBox(ship.x + ship.image.get_width()/3, ship.y+ship.image.get_height()/3, x_max/4, y_max/8, str(ship.name), f"{ship.root.name}: {ship.root.xp}/{ship.price}", (44, 117, 255))
+                            InfoBox(ship.x + ship.image.get_width()/3, ship.y+ship.image.get_height()/3, x_max/4, y_max/8, str(ship.name), f"{ship.root.name}: {ship.root.xp}/{ship.UnlockXP}", (44, 117, 255))
 
                     else:
                         InfoBox(ship.x + ship.image.get_width()/3, ship.y+ship.image.get_height()/3, x_max/4, y_max/8, str(ship.name), f"Root ship: {ship.xp}", (44, 117, 255))
@@ -189,9 +260,6 @@ def treeing():
                     ship.root = ship1
             if ship.root is not None and overwritelines is False:
                 pg.draw.line(screen, (150, 150, 150), (ship.x, ship.y), (ship.root.x, ship.root.y))
-                if ship.root.xp >= 1000:
-                    if data["Balance"] >= ship.price:
-                        ship.buy = True
             screen.blit(ship.image, (ship.x-ship.image.get_width()/2, ship.y-ship.image.get_height()/2))
             color = (100, 100, 100)
             if ship.buy:
@@ -200,6 +268,7 @@ def treeing():
                 color = (0, 255, 0)
             pg.draw.rect(screen, color, [ship.x-ship.image.get_width()/2, ship.y-ship.image.get_height()/2,
                                          ship.image.get_width(), ship.image.get_height()], 2)
+        menu.ShowBalance(x_max, y_max / 50, screen, (255,255,255))
         pg.display.update()
 
     SaveData(data)
