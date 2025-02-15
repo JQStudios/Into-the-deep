@@ -12,15 +12,13 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes  
 import base64
 
-password = b"Gioni boss du geile"
+password = b"fkOmnnRUwKgq"
 salt = b"921023"
 kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100000, backend=default_backend())
 key = base64.urlsafe_b64encode(kdf.derive(password))
 # Save settings
 
 SETTINGS_FILE = "settings.json"
-
-
 
 
 def in_rect(pos, rect):
@@ -47,6 +45,8 @@ def load_settings():
         }
         save_settings(default_settings)
         return default_settings
+
+
 def LoadData():
     try:
         fernet = Fernet(key)
@@ -54,6 +54,7 @@ def LoadData():
             ENCDATA = file.read()
         DECDATA = fernet.decrypt(ENCDATA)
         data = json.loads(DECDATA.decode())
+        print(data)
         return data
     except FileNotFoundError:
         print("Could not find Data file. Creating a new one.")
@@ -73,25 +74,7 @@ def LoadData():
 
         SaveData(DefaultData)
         return DefaultData
-    # Debug Method
-    #try:
-    #    with open("data.json", "r") as file:
-    #        data = json.load(file)
-    #        return data
-    #except FileNotFoundError:
-    #    print("Could not find Data file. Creating a new one.")
-    #    DefaultData = {
-    #        "Balance": 0,
-    #        "ShipsData": {
-    #            "X-Wing": {
-    #                "Name": "X-Wing",
-    #                "XP": 0
-    #            }
-    #        }
-    #    }
-#
-    #    SaveData(DefaultData)
-    #    return DefaultData
+
 
 def SaveData(data):
     fernet = Fernet(key)
@@ -102,6 +85,7 @@ def SaveData(data):
     # Debug Method
     #with open("data.json", "w") as file:
     #    json.dump(data, file, indent=4)
+
 
 # save settings
 def save_settings(settings):
@@ -134,7 +118,7 @@ pg.init()
 x_max, y_max = screen.get_size()
 pg.key.set_repeat(20, 20)
 pg.joystick.init()
-controllers = pg.joystick.get_count()-1000
+controllers = 1
 if controllers > 0:
     controller = pg.joystick.Joystick(0)
     controller.init()

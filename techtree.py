@@ -13,9 +13,7 @@ xfieldmax = x_max
 yfieldmax = y_max
 logs = []
 GlobalAnimation = 1
-
 data = LoadData()
-
 
 
 def show_text(content, color=(255, 255, 0), start_x=x_max/2, start_y=100, end_size=50, centring=0, 
@@ -215,7 +213,7 @@ def treeing():
                                 found = False
                                 for shipdata in data["ShipsData"].values():
                                     if shipdata["Name"] == ship.root.name:
-                                        shipdata["XP"] = shipdata["XP"] - ship.UnlockXP
+                                        data["Balance"] -= ship.price
                                         found = True
                                         break
                                 if not found:

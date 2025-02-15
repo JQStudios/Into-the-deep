@@ -443,7 +443,7 @@ def LevelBar(x,y, size_x, size_y, screen):
     # Hollow Level Bar
     i = 1
     while i <= 10:
-        pg.draw.rect(screen, (255,255,255), (x + (i-1) * (size_x/10), y, size_x/10, size_y), int(x_max/600))
+        pg.draw.rect(screen, (255, 255, 255), (x + (i-1) * (size_x/10), y, size_x/10, size_y), int(x_max/600))
         i += 1
 
 
@@ -458,18 +458,13 @@ def ShowBalance(x, y, screen, color=(0,0,0)):
     text_size_x, text_size_y = show_text(str(Balance), (color), x * GlobalCoinAnimation, y, 50, 1, False, False, 0)
     if CheckButton(x - ScaledCoinsImg.get_width(), y, ScaledCoinsImg.get_width(), ScaledCoinsImg.get_height(), pg.mouse.get_pos()):
         print("Opening Balance")
-        screen.blit(ScaledCoinsImg, ((x  * GlobalCoinAnimation) - ScaledCoinsImg.get_width() - 10, y))
+        screen.blit(ScaledCoinsImg, ((x * GlobalCoinAnimation) - ScaledCoinsImg.get_width() - 10, y))
         text_size_x, text_size_y = show_text(str(Balance), (color), x * GlobalCoinAnimation, y + text_size_y / 1.5, 50, 1)
         if GlobalCoinAnimation >= (x_max-text_size_x)/x_max:
             print((x_max-text_size_x)/x_max)
             GlobalCoinAnimation -= 0.002
     else:
-        screen.blit(ScaledCoinsImg, ((x  * GlobalCoinAnimation) - ScaledCoinsImg.get_width() - 10, y))
+        screen.blit(ScaledCoinsImg, ((x * GlobalCoinAnimation) - ScaledCoinsImg.get_width() - 10, y))
         text_size_x, text_size_y = show_text(str(Balance), (color), x * GlobalCoinAnimation, y + text_size_y / 1.5, 50, 1)
         if GlobalCoinAnimation < 1:
             GlobalCoinAnimation += 0.002
-    
-
-    
-    
-    #pg.draw.rect(screen, (135, 145, 153), (x - TotalSizeX / 8, y - text_size_y/1.2, TotalSizeX * 1.5, text_size_y * 1.7))
