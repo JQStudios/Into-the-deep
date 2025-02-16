@@ -7,6 +7,7 @@ laser.set_volume(0.2)
 
 
 def PlayMission(ship_class, fighters, botcount, mode, reward):
+    data = LoadData()
     XP = 0
     result = False
     currency = data["Balance"]

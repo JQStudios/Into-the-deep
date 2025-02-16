@@ -5,6 +5,8 @@ from time import *
 import json
 import re
 import os
+import math
+
 # Encrypton
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.backends import default_backend
@@ -54,7 +56,6 @@ def LoadData():
             ENCDATA = file.read()
         DECDATA = fernet.decrypt(ENCDATA)
         data = json.loads(DECDATA.decode())
-        print(data)
         return data
     except FileNotFoundError:
         print("Could not find Data file. Creating a new one.")
@@ -98,11 +99,11 @@ settings = load_settings()
 # Level System
 
 def GetLevel(debugXP=None):
-    buffer = 0.8 # + buffer = harder, - buffer = easier
+    buffer = 250 # Amount TotalXP needed for first level
     TotalXP = LoadData()["TotalXP"]
     if not debugXP == None:
         TotalXP = debugXP
-    level = max(0, ((TotalXP / 1000) ** buffer))
+    level = math.sqrt(TotalXP / buffer)
     return level
 
 
@@ -118,7 +119,7 @@ pg.init()
 x_max, y_max = screen.get_size()
 pg.key.set_repeat(20, 20)
 pg.joystick.init()
-controllers = 1
+controllers = 0
 if controllers > 0:
     controller = pg.joystick.Joystick(0)
     controller.init()
@@ -527,6 +528,7 @@ class XWing(Ship):
         self.UnlockXP = 0
         self.shop_x = 0.5
         self.shop_y = 0.1
+        self.select = False
         print(self.speed)
 
 
@@ -547,5 +549,6 @@ class Bomber(Ship):
         self.buy = False
         self.price = 1200
         self.UnlockXP = 2000
+        self.select = False
         self.shop_x = 0.5
         self.shop_y = 0.2

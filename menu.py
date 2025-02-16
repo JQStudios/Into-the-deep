@@ -308,7 +308,8 @@ def execButtonAction(action, button_x, button_y):
         save_settings(settings)
     elif MissionSplit[0] == "StartMission":
         Mission = Mission = ast.literal_eval(MissionSplit[1].strip())
-        PlayMission("X-Wing", None, Mission['BC'], Mission['MT'], Mission["RW"])
+        data = LoadData()
+        PlayMission(data["Selection"], None, Mission['BC'], Mission['MT'], Mission["RW"])
         print("Mission Finished")
     else:
         NewMessage = display_message(screen, f"error: uknown action: {action}", (200, 0, 0))
@@ -457,7 +458,6 @@ def ShowBalance(x, y, screen, color=(0,0,0)):
         ScaledCoinsImg = pg.transform.scale(CoinImg, (50,50))
     text_size_x, text_size_y = show_text(str(Balance), (color), x * GlobalCoinAnimation, y, 50, 1, False, False, 0)
     if CheckButton(x - ScaledCoinsImg.get_width(), y, ScaledCoinsImg.get_width(), ScaledCoinsImg.get_height(), pg.mouse.get_pos()):
-        print("Opening Balance")
         screen.blit(ScaledCoinsImg, ((x * GlobalCoinAnimation) - ScaledCoinsImg.get_width() - 10, y))
         text_size_x, text_size_y = show_text(str(Balance), (color), x * GlobalCoinAnimation, y + text_size_y / 1.5, 50, 1)
         if GlobalCoinAnimation >= (x_max-text_size_x)/x_max:
