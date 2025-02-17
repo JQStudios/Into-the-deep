@@ -1,4 +1,4 @@
-# JQShooter
+# Into the deep
 Science fiction shooter (2D controller based)
 
 ### Installation
