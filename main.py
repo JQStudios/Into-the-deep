@@ -28,7 +28,6 @@ while running:
         if event.type == pg.MOUSEBUTTONDOWN:
             mousepos = pg.mouse.get_pos()
             CheckMenu(buttons, mousepos)
-    
     message = get_message()
     
     if message:

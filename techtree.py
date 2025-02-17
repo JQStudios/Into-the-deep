@@ -9,6 +9,7 @@ data = []
 level = 0
 xwingpng = pg.image.load("xwing.png")
 bomberpng = pg.image.load("bomber.png")
+lightcruiserpng = pg.image.load("LightCruiser.png")
 xfieldmax = x_max
 yfieldmax = y_max
 logs = []
@@ -182,7 +183,7 @@ def treeing():
         stars.append((random.randint(0, x_max), random.randint(0, y_max)))
         i += 1
     used = True
-    ships = [XWing(xwingpng, None, 0), Bomber(bomberpng, None, 0)]
+    ships = [XWing(xwingpng, None, 0), Bomber(bomberpng, None, 0), LightCruiser(lightcruiserpng, None, 0)]
     for ship in ships:
         for shipdata in data["ShipsData"].values():
             if ship.name == shipdata["Name"]:
@@ -278,16 +279,19 @@ def treeing():
             ship.x, ship.y = ship.shop_x*xfieldmax, ship.shop_y*yfieldmax
             if ship.x - ship.image.get_width()/2 < pg.mouse.get_pos()[0] < ship.x+ship.image.get_width()/2 and ship.y - ship.image.get_width()/2 < pg.mouse.get_pos()[1] < ship.y+ship.image.get_height()/2:
                     if ship.root is not None:
-                        if ship.UnlockXP <= ship.root.xp and ship.own == False:
-                            if blink >= 0 and blink <= 125:
-                                InfoBox(ship.x + ship.image.get_width()/3, ship.y+ship.image.get_height()/3, x_max/4, y_max/4, f"Hold To Unlock", f"{ship.root.name}: {ship.root.xp}/{ship.UnlockXP}", f"speed: {ship.speed}", f"damage: {ship.damage}", f"HP: {ship.hp}", (44, 117, 255))
+                        if ship.own == False:
+                            if blink >= 0 and blink <= 125 and ship.UnlockXP <= ship.root.xp:
+                                InfoBox(ship.x + ship.image.get_width()/3, ship.y+ship.image.get_height()/3, x_max/4, y_max/4, f"Hold To Unlock", f"{ship.root.name}: {ship.root.xp}/{ship.UnlockXP} XP", f"speed: {ship.speed}", f"damage: {ship.damage}", f"HP: {ship.hp}", (44, 117, 255))
                                 blink += 1
+                            else:
+                                #overwritting Blink
+                                blink = 150
                             if blink >= 125 and blink <= 250:
-                                InfoBox(ship.x + ship.image.get_width()/3, ship.y+ship.image.get_height()/3, x_max/4, y_max/4, f"{ship.name}", f"{ship.root.name}: {ship.root.xp}/{ship.UnlockXP}", f"speed: {ship.speed}", f"damage: {ship.damage}", f"HP: {ship.hp}", (44, 117, 255))
+                                InfoBox(ship.x + ship.image.get_width()/3, ship.y+ship.image.get_height()/3, x_max/4, y_max/4, f"{ship.name}", f"{ship.root.name}: {ship.root.xp}/{ship.UnlockXP} XP", f"speed: {ship.speed}", f"damage: {ship.damage}", f"HP: {ship.hp}", (44, 117, 255))
                                 blink += 1
                             if blink >= 250:
                                 blink = 0
-                        elif ship.price <= data["Balance"] and ship.buy == False:
+                        elif ship.price <= data["Balance"] and ship.buy == False and ship.own == True:
                             if blink >= 0 and blink <= 125:
                                 InfoBox(ship.x + ship.image.get_width()/3, ship.y+ship.image.get_height()/3, x_max/4, y_max/4, f"Hold To Buy", f"Price: {data["Balance"]}/{ship.price}", f"speed: {ship.speed}", f"damage: {ship.damage}", f"HP: {ship.hp}", (44, 117, 255))
                                 blink += 1

@@ -15,10 +15,13 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
     asteroidpng = pg.image.load("asteroid.png")
     dronepng = pg.image.load("drone.png")
     ship_class = ship_class
+    ExtraBots, HPFactor = GetDifficultyFactors()
     if ship_class == "X-Wing":
         fighter = XWing(image=xwingpng)
     elif ship_class == "Bomber":
         fighter = Bomber(image=bomberpng)
+    elif ship_class == "LightCruiser":
+        fighter = LightCruiser(image=lightcruiserpng)
     for ShipData in data["ShipsData"].values():
         if ShipData["Name"] == fighter.name:
             print(ShipData["XP"])
@@ -32,63 +35,64 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
         objects[len(objects)-1].speed *= 0.01
         objects[len(objects)-1].angle = randint(0, 359)
     bots = []
-    if mode == "battle royal":
-        botcount = 4
+    if mode == "free for all":
+        botcount = 4 + int(ExtraBots * 0.5)
     else:
-        botcount = 8
+        botcount = 8 + ExtraBots
     botclass = "Default"
-    for nr in range(0, botcount+level):
+    for nr in range(0, botcount):
         speed = x_max/30000
         if mode == "battle royal":
             botclass = random.choice(["Default", "FlameBot", "Sniper", "Heavy"])
             if botclass == "Default":
-                hp = 100
+                hp = 100 * HPFactor
                 damage = 5
                 rate = 0.4
             elif botclass == "FlameBot":
-                hp = 80
+                hp = 80 * HPFactor
                 damage = 0
                 rate = -1
             elif botclass == "Sniper":
-                hp = 50
+                hp = 50 * HPFactor
                 damage = 10
                 rate = 1.5
             else:
-                hp = 120
+                hp = 120 * HPFactor
                 damage = 2.5
                 rate = 0.3
         else:
             botclass = random.choice(["Default", "FlameBot", "Kamikaze", "Sniper", "Heavy"])
             if botclass == "Default":
-                hp = 35
+                hp = 35 * HPFactor
                 damage = 1
                 rate = 0.4
             elif botclass == "FlameBot":
-                hp = 20
+                hp = 20 * HPFactor
                 damage = 0
                 rate = -1
             elif botclass == "Kamikaze":
-                hp = 50
+                hp = 50 * HPFactor
                 damage = 0
                 rate = -1
                 speed = x_max/7500
             elif botclass == "Sniper":
-                hp = 10
+                hp = 10 * HPFactor
                 damage = 3
                 rate = 2
             else:
-                hp = 50
+                hp = 50 * HPFactor
                 damage = 0.5
                 rate = 0.3
         bots.append(Bot(randint(0, x_max), randint(0, y_max), dronepng, fire_rate=rate, hp=hp,
                         damage=damage, botclass=botclass, speed=speed))
     spawn_time = time()
+    print(f"Spawned {len(bots)} with HP * {HPFactor} and {ExtraBots} extra bots in {spawn_time}s")
 
 
     def minus_shield(obj, damage):
         if time() >= spawn_time+2:
             obj.damage_timeout = time()
-            print(obj.damage_timeout)
+            print(spawn_time-time())
             if obj.shield > 0:
                 obj.shield -= damage
                 if obj.shield < 0:
@@ -183,7 +187,6 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
             print("port initialized")
         if abs(controller_obj.get_axis(0)) >= 0.1 or abs(controller_obj.get_axis(1)) >= 0.1:
             obj.angle = get_angle((0, 0), (-controller_obj.get_axis(0), -controller_obj.get_axis(1)))
-            print(obj.angle)
             obj.x_speed = -controller_obj.get_axis(0)*obj.speed*2
             obj.y_speed = -controller_obj.get_axis(1)*obj.speed*2
         else:

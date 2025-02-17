@@ -29,6 +29,11 @@ def in_rect(pos, rect):
     else:
         return False
 
+def GetDifficultyFactors():
+    level = int(GetLevel())
+    count = int(level * 0.4)
+    hpFactor = 1 + (level * 0.2)
+    return count, hpFactor
 
 def load_settings():
     try:
@@ -552,3 +557,25 @@ class Bomber(Ship):
         self.select = False
         self.shop_x = 0.5
         self.shop_y = 0.2
+
+
+class LightCruiser(Ship):
+    def __init__(self, image, abilities=None, xp=0):
+        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/10000, agility=1.4, fire_rate=0.125, hp=210,
+                         cooldown=5, damage=24, size=x_max/25, hitbox=x_max/20, image=image,
+                         guns=[-x_max/50, x_max/50], xp=xp)
+        if abilities is None:
+            abilities = ["ion_attack"]
+        self.flamethrower = 0
+        self.flamethrower_cooldown = 0
+        self.grenades = 5
+        self.abilities = abilities
+        self.name = "LightCruiser"
+        self.root = "Bomber"
+        self.own = False
+        self.buy = False
+        self.price = 1000
+        self.UnlockXP = 3000
+        self.select = False
+        self.shop_x = 0.6
+        self.shop_y = 0.4
