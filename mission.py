@@ -38,8 +38,10 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
     bots = []
     if mode == "free for all":
         botcount = 4 + int(ExtraBots * 0.5)
+        reward = reward * 0.5
     else:
         botcount = 8 + ExtraBots
+    reward = int(reward * (HPFactor/2))
     botclass = "Default"
     for nr in range(0, botcount):
         speed = x_max/30000
@@ -242,6 +244,9 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
             weapon = 1
 
     running = True
+    stars = []
+    while len(stars) <= 100:
+        stars.append((random.randint(0, x_max), random.randint(0, y_max)))
     while running:
         if dist((fighter.x, fighter.y), (pg.mouse.get_pos()[0], pg.mouse.get_pos()[1])) >= 5:
             fighter.angle = get_angle((fighter.x, fighter.y), (pg.mouse.get_pos()[0], pg.mouse.get_pos()[1])) + 180
@@ -324,6 +329,9 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                     fighter.shot = time()
 
         screen.fill((0, 0, 0))
+# Stars
+        for star in stars:
+            pg.draw.circle(screen, (255,255,255), star, 1)
         if controllers > 0:
             controller_check(fighter, controller, bots)
 
@@ -582,11 +590,11 @@ def DisplayResults(result, XP, reward, extra_exp):
                                 pg.display.update()
                         running = False
         screen.fill((0, 0, 0))
-        TotalXPDelta = min(TotalXPDelta + 0.5, XP)
-        RewardDelta = min(RewardDelta + 0.5, reward)
-        XPDelta = min(XPDelta + 0.5, extra_exp)
+        TotalXPDelta = min(TotalXPDelta + 1, XP)
+        RewardDelta = min(RewardDelta + 1, reward)
+        XPDelta = min(XPDelta + 1, extra_exp)
         if result == True and running == True:
-            if AnimatedText(x_max/2, y_max/2, x_max/2, y_max/3, f"Battle Won", 5, "constant", (255,255,255), 2, False, 200):
+            if AnimatedText(x_max/2, y_max/2, x_max/2, y_max/3, f"Battle Won", 5, "constant", (255,255,255), 1, False, 200):
                 show_text(f"Reward: {int(RewardDelta)}", (255, 255, 255), x_max/2, y_max/2)
                 show_text(f"XP: {int(XPDelta)}", (255, 255, 255), x_max/2, y_max/2+50)
                 show_text(f"Total XP: {int(TotalXPDelta)}", (255, 255, 255), x_max/2, y_max/2+100)

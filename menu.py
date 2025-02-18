@@ -39,16 +39,16 @@ def dashboard():
                 mousepos = pg.mouse.get_pos()
                 CheckMenu(buttons, mousepos)
 
-        message = get_message()
-
-        if message:
-            message.update()
-            if message.is_done():
-                message = None
 # Level Bar
         LevelBar(x_max/4, y_max/50, x_max/2, y_max/15, screen)
 # Balance  
         ShowBalance(x_max, y_max / 50, screen)
+# Message
+        message = get_message()
+        if message:
+            message.update()
+            if message.is_done():
+                message = None
         pg.display.update()
         pg.display.update()
 
@@ -409,7 +409,7 @@ def wrap_text(text, font, max_width, text_color):
 
 # Select Missions
 def SelectMissions():
-# MissionType = MT, MissionDescription = MD, BotCount = BC, Difficulty = DC, Reward = RW
+# MissionType = MT, MissionDescription = MD, BotCount = BC (NOT USED!), Difficulty = DC (NOT USED!), Reward = RW
     MissionTypes=["destroy", "free for all"]
     MissionDescriptions=["destroy every enemy target given by an operator.", "be the last one to survive in an every body against every body situation"]
     i = 0

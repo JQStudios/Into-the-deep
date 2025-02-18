@@ -520,7 +520,7 @@ class Bot(Ship):
 
 class XWing(Ship):
     def __init__(self, image, abilities=None, xp=0):
-        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/3000, agility=1.5, fire_rate=0.5, hp=80,
+        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/3000, agility=1.5, fire_rate=0.25, hp=80,
                          cooldown=5, damage=5, size=x_max/50, image=image, guns=[-x_max/100, x_max/100], xp=xp)
         if abilities is None:
             abilities = ["flamethrower"]
@@ -538,7 +538,7 @@ class XWing(Ship):
 
 class Bomber(Ship):
     def __init__(self, image, abilities=None, xp=0):
-        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/5000, agility=0.6, fire_rate=0.25, hp=120,
+        super().__init__(x=x_max/2, y=y_max/2, speed=x_max/5000, agility=0.6, fire_rate=0.125, hp=120,
                          cooldown=5, damage=6, size=x_max/25, hitbox=x_max/30, image=image,
                          guns=[-x_max/50, x_max/50], xp=xp)
         if abilities is None:
@@ -549,6 +549,7 @@ class Bomber(Ship):
         self.root = "X-Wing"
         self.own = False
         self.buy = False
+        self.select = False
         self.price = 1200
         self.UnlockXP = 2000
         self.shop_x = 0.5
@@ -570,8 +571,8 @@ class LightCruiser(Ship):
         self.root = "Bomber"
         self.own = False
         self.buy = False
-        self.price = 1000
-        self.UnlockXP = 3000
+        self.price = 10000
+        self.UnlockXP = 6000
         self.select = False
         self.shop_x = 0.6
         self.shop_y = 0.4
