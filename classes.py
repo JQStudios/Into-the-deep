@@ -54,7 +54,6 @@ def LoadData():
             ENCDATA = file.read()
         DECDATA = fernet.decrypt(ENCDATA)
         data = json.loads(DECDATA.decode())
-        print(data)
         return data
     except FileNotFoundError:
         print("Could not find Data file. Creating a new one.")
@@ -118,7 +117,7 @@ pg.init()
 x_max, y_max = screen.get_size()
 pg.key.set_repeat(20, 20)
 pg.joystick.init()
-controllers = 1
+controllers = 0
 if controllers > 0:
     controller = pg.joystick.Joystick(0)
     controller.init()
@@ -320,6 +319,8 @@ class Ship(pg.sprite.Sprite):
         self.xp = xp
         self.weapon = 0
         self.stop = False
+        self.fuel = 1000
+        self.flaming = False
 
     def minus_shield(self, damage):
         self.damage_timeout = time()
@@ -338,6 +339,7 @@ class Ship(pg.sprite.Sprite):
     def move(self, timeout, controller=None):
         global vibrating
 
+        self.fuel += 1
         self.x -= self.x_speed
         self.y -= self.y_speed
 
@@ -515,8 +517,6 @@ class XWing(Ship):
                          cooldown=5, damage=5, size=x_max/50, image=image, guns=[-x_max/100, x_max/100], xp=xp)
         if abilities is None:
             abilities = ["flamethrower"]
-        self.flamethrower = 0
-        self.flamethrower_cooldown = 0
         self.grenades = 5
         self.abilities = abilities
         self.name = "X-Wing"
@@ -527,7 +527,6 @@ class XWing(Ship):
         self.UnlockXP = 0
         self.shop_x = 0.5
         self.shop_y = 0.1
-        print(self.speed)
 
 
 class Bomber(Ship):
@@ -537,8 +536,6 @@ class Bomber(Ship):
                          guns=[-x_max/50, x_max/50], xp=xp)
         if abilities is None:
             abilities = ["ion_attack"]
-        self.flamethrower = 0
-        self.flamethrower_cooldown = 0
         self.grenades = 5
         self.abilities = abilities
         self.name = "Bomber"

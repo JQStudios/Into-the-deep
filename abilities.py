@@ -24,9 +24,11 @@ scale = fireball.get_width()/size
 fireball = pg.transform.scale(fireball, (fireball.get_width()/scale, fireball.get_height()/scale))
 
 
-def flamethrower(parent, speed, chance=10, spread=5):
+def flamethrower(parent, speed, chance=10, spread=5, angle=None):
+    if angle is None:
+        angle = parent.angle
     if randint(0, chance) == 0:
-        direction = int(parent.angle)
+        direction = int(angle)
         direction = randint(direction-spread, direction+spread)
         if direction < 0:
             direction += 360
