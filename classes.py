@@ -326,6 +326,8 @@ class Ship(pg.sprite.Sprite):
         self.xp = xp
         self.weapon = 0
         self.stop = False
+        self.fuel = 1000
+        self.flaming = False
 
     def minus_shield(self, damage):
         self.damage_timeout = time()
@@ -344,6 +346,7 @@ class Ship(pg.sprite.Sprite):
     def move(self, timeout, controller=None):
         global vibrating
 
+        self.fuel += 1
         self.x -= self.x_speed
         self.y -= self.y_speed
 
@@ -521,8 +524,6 @@ class XWing(Ship):
                          cooldown=5, damage=5, size=x_max/50, image=image, guns=[-x_max/100, x_max/100], xp=xp)
         if abilities is None:
             abilities = ["flamethrower"]
-        self.flamethrower = 0
-        self.flamethrower_cooldown = 0
         self.grenades = 5
         self.abilities = abilities
         self.name = "X-Wing"
@@ -533,8 +534,6 @@ class XWing(Ship):
         self.UnlockXP = 0
         self.shop_x = 0.5
         self.shop_y = 0.1
-        self.select = False
-        print(self.speed)
 
 
 class Bomber(Ship):
@@ -544,8 +543,6 @@ class Bomber(Ship):
                          guns=[-x_max/50, x_max/50], xp=xp)
         if abilities is None:
             abilities = ["ion_attack"]
-        self.flamethrower = 0
-        self.flamethrower_cooldown = 0
         self.grenades = 5
         self.abilities = abilities
         self.name = "Bomber"
@@ -554,7 +551,6 @@ class Bomber(Ship):
         self.buy = False
         self.price = 1200
         self.UnlockXP = 2000
-        self.select = False
         self.shop_x = 0.5
         self.shop_y = 0.2
 
