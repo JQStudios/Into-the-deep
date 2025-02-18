@@ -6,6 +6,53 @@ laser.set_volume(0.2)
 weapon = 0
 
 
+def create_bot(mode):
+    ExtraBots, HPFactor = GetDifficultyFactors()
+    speed = x_max / 30000
+    if mode == "free for all":
+        botclass = random.choice(["Default", "FlameBot", "Sniper", "Heavy"])
+        if botclass == "Default":
+            hp = 100 * HPFactor
+            damage = 5
+            rate = 0.4
+        elif botclass == "FlameBot":
+            hp = 80 * HPFactor
+            damage = 0
+            rate = -1
+        elif botclass == "Sniper":
+            hp = 50 * HPFactor
+            damage = 10
+            rate = 1.5
+        else:
+            hp = 120 * HPFactor
+            damage = 2.5
+            rate = 0.3
+    else:
+        botclass = random.choice(["Default", "FlameBot", "Kamikaze", "Sniper", "Heavy"])
+        if botclass == "Default":
+            hp = 35 * HPFactor
+            damage = 1
+            rate = 0.4
+        elif botclass == "FlameBot":
+            hp = 20 * HPFactor
+            damage = 0
+            rate = -1
+        elif botclass == "Kamikaze":
+            hp = 50 * HPFactor
+            damage = 0
+            rate = -1
+            speed = x_max / 7500
+        elif botclass == "Sniper":
+            hp = 10 * HPFactor
+            damage = 3
+            rate = 2
+        else:
+            hp = 50 * HPFactor
+            damage = 0.5
+            rate = 0.3
+    return hp, damage, rate, speed, botclass
+
+
 def PlayMission(ship_class, fighters, botcount, mode, reward):
     global weapon
     data = LoadData()
@@ -38,58 +85,17 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
     bots = []
     if mode == "free for all":
         botcount = 4 + int(ExtraBots * 0.5)
+    elif mode == "defend":
+        botcount = 0
     else:
         botcount = 8 + ExtraBots
-    botclass = "Default"
     for nr in range(0, botcount):
-        speed = x_max/30000
-        if mode == "free for all":
-            botclass = random.choice(["Default", "FlameBot", "Sniper", "Heavy"])
-            if botclass == "Default":
-                hp = 100 * HPFactor
-                damage = 5
-                rate = 0.4
-            elif botclass == "FlameBot":
-                hp = 80 * HPFactor
-                damage = 0
-                rate = -1
-            elif botclass == "Sniper":
-                hp = 50 * HPFactor
-                damage = 10
-                rate = 1.5
-            else:
-                hp = 120 * HPFactor
-                damage = 2.5
-                rate = 0.3
-        else:
-            botclass = random.choice(["Default", "FlameBot", "Kamikaze", "Sniper", "Heavy"])
-            if botclass == "Default":
-                hp = 35 * HPFactor
-                damage = 1
-                rate = 0.4
-            elif botclass == "FlameBot":
-                hp = 20 * HPFactor
-                damage = 0
-                rate = -1
-            elif botclass == "Kamikaze":
-                hp = 50 * HPFactor
-                damage = 0
-                rate = -1
-                speed = x_max/7500
-            elif botclass == "Sniper":
-                hp = 10 * HPFactor
-                damage = 3
-                rate = 2
-            else:
-                hp = 50 * HPFactor
-                damage = 0.5
-                rate = 0.3
+        hp, damage, rate, speed, botclass = create_bot(mode)
         bots.append(Bot(randint(0, x_max), randint(0, y_max), dronepng, fire_rate=rate, hp=hp,
                         damage=damage, botclass=botclass, speed=speed))
     spawn_time = time()
     print(f"Spawned {len(bots)} with HP * {HPFactor} and {ExtraBots} extra bots in {spawn_time}s")
     weapon = 0
-
 
     def minus_shield(obj, damage):
         if time() >= spawn_time+2:
@@ -102,13 +108,11 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
             else:
                 obj.hp -= damage
 
-
     def in_rect(pos, rect):
         if (rect[0] <= pos[0] <= rect[2]) and (rect[1] <= pos[1] <= rect[3]):
             return True
         else:
             return False
-
 
     def control_overlaps(obj, obj1):
         if type(obj) is not list:
@@ -135,7 +139,6 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                     return True
         return False
 
-
     def ion_attack(x, y, radius, delay, self):
         ships = [fighter]
         ships.remove(self)
@@ -143,7 +146,6 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
             if dist((ship.x, ship.y), (x, y)) <= radius:
                 ship.control = False
                 ship.control_time = time()+delay
-
 
     def target_system(obj, obj1, angle=None, diff=15):
         if angle is None:
@@ -242,6 +244,7 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
             weapon = 1
 
     running = True
+    bot_spawn = time()
     while running:
         if dist((fighter.x, fighter.y), (pg.mouse.get_pos()[0], pg.mouse.get_pos()[1])) >= 5:
             fighter.angle = get_angle((fighter.x, fighter.y), (pg.mouse.get_pos()[0], pg.mouse.get_pos()[1])) + 180
@@ -324,6 +327,15 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                     fighter.shot = time()
 
         screen.fill((0, 0, 0))
+        if mode == "defend":
+            if time() >= spawn_time+180:
+                running = False
+                result = True
+            if time() >= bot_spawn+7:
+                bot_spawn = time()
+                for x in range(0, 5):
+                    hp, damage, rate, speed, botclass = create_bot(mode)
+                    bots.append(Bot((x_max/6)*x, 0, dronepng, hp, damage, rate, botclass, speed))
         if controllers > 0:
             controller_check(fighter, controller, bots)
 
@@ -391,6 +403,7 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                 removables = []
 
         for bot in bots:
+            target = None
             if mode == "free for all":
                 enemies = [(fighter, dist((fighter.x, fighter.y), (bot.x, bot.y)))]
                 for bot1 in bots:
@@ -398,10 +411,21 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                         enemies.append((bot1, dist((bot1.x, bot1.y), (bot.x, bot.y))))
                 enemies = sorted(enemies, key=lambda tup: tup[1])
                 if not bot.dead:
-                    bot.attack(enemies[0][0], objects, mode)
+                    bot.attack(enemies[0][0], objects)
+                    target = enemies[0][0]
+            elif mode == "defend":
+                if dist((bot.x, bot.y), (fighter.x, fighter.y)) <= x_max/4:
+                    bot.attack(fighter, objects)
+                    target = fighter
+                else:
+                    bot.attack(None, objects)
+                if bot.y >= y_max:
+                    running = False
+                    result = False
             else:
                 if not bot.dead:
-                    bot.attack(fighter, objects, mode)
+                    bot.attack(fighter, objects)
+                    target = fighter
             pg.draw.rect(screen, bot.rect_color, [bot.x - bot.hitbox / 2, bot.y - bot.hitbox / 2,
                                                   bot.hitbox, bot.hitbox], 2)
             screen.blit(bot.image, (bot.x - bot.actual_size[0] / 2, bot.y - bot.actual_size[1] / 2))
@@ -418,7 +442,7 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                         bot.hp -= fighter.hp
                         fighter.hp -= bothp
             if time() >= bot.shot + bot.fire_rate:
-                if not bot.dead:
+                if not bot.dead and target is not None:
                     bot.shot = time()
                     if bot.botclass == "Sniper":
                         target_system(bot, [fighter])
@@ -524,12 +548,13 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
             targets.append(bot)
         pg.display.update()
 
-        if len(bots) <= 0:
-            screen.fill((0, 0, 0))
-            result = True
-            fighter.xp += XP + 100
-            currency += reward
-            running = False
+        if mode != "defend":
+            if len(bots) <= 0:
+                screen.fill((0, 0, 0))
+                result = True
+                fighter.xp += XP + 100
+                currency += reward
+                running = False
 
         value = 1
         if (fighter.hp <= 0) or (value <= 0):

@@ -410,8 +410,9 @@ def wrap_text(text, font, max_width, text_color):
 # Select Missions
 def SelectMissions():
 # MissionType = MT, MissionDescription = MD, BotCount = BC, Difficulty = DC, Reward = RW
-    MissionTypes=["destroy", "free for all"]
-    MissionDescriptions=["destroy every enemy target given by an operator.", "be the last one to survive in an every body against every body situation"]
+    MissionTypes=["destroy", "free for all", "defend"]
+    MissionDescriptions=["destroy every enemy target given by an operator.", "be the last one to survive in an every body against every body situation",
+                         "prevent bots from reaching the bottom of the screen"]
     i = 0
     Missions = []
     while i < 3:

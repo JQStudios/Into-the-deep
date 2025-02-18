@@ -320,8 +320,8 @@ class Ship(pg.sprite.Sprite):
         self.abilities = []
         self.rect_color = (255, 255, 255)
         self.shot = time()
-        self.max_shield = 100
-        self.shield = 100
+        self.max_shield = 50
+        self.shield = 50
         self.damage_timeout = 0
         self.xp = xp
         self.weapon = 0
@@ -465,16 +465,9 @@ class Bot(Ship):
         self.dead = False
         self.botclass = botclass
 
-    def attack(self, target, obstacles, mode):
+    def attack(self, target, obstacles):
         self.left_dodge = False
         for obstacle in obstacles:
-            """
-            target_angle = get_angle((obstacle.x, obstacle.y), (self.x, self.y))
-            anglediff = (self.angle - target_angle + 180 + 360) % 360 - 180
-            if (anglediff <= 25) and (anglediff >= -25):
-                if dist((self.x, self.y), (obstacle.x, obstacle.y)) <= 75:
-                    self.left_dodge = True
-            """
             if dist((self.x, self.y), (obstacle.x, obstacle.y)) <= 100:
                 self.left_dodge = True
 
@@ -482,7 +475,10 @@ class Bot(Ship):
         # self.move(timeout)
         self.move_tick = time()
 
-        self.angle = get_angle((self.x, self.y), (target.x, target.y))+180
+        if target is not None:
+            self.angle = get_angle((self.x, self.y), (target.x, target.y))+180
+        else:
+            self.angle = 180
         if self.angle >= 360:
             self.angle -= 360
         elif self.angle < 0:
@@ -500,9 +496,10 @@ class Bot(Ship):
         if (not self.dodge) and (not self.left_dodge) and (not self.right_dodge):
             self.x -= sin(radians(self.angle))*self.actual_speed*timeout
             self.y -= cos(radians(self.angle))*self.actual_speed*timeout
-        if dist((self.x, self.y), (target.x, target.y)) < 100 and self.botclass != "Kamikaze":
-            self.x += sin(radians(self.angle))*self.actual_speed*2*timeout
-            self.y += cos(radians(self.angle))*self.actual_speed*2*timeout
+        if target is not None:
+            if dist((self.x, self.y), (target.x, target.y)) < 100 and self.botclass != "Kamikaze":
+                self.x += sin(radians(self.angle))*self.actual_speed*2*timeout
+                self.y += cos(radians(self.angle))*self.actual_speed*2*timeout
 
         if self.x <= 0:
             self.x = 0
