@@ -1,3 +1,4 @@
+from selection import *
 from abilities import *
 from techtree import *
 
@@ -6,6 +7,7 @@ laser.set_volume(0.2)
 
 
 def PlayMission(ship_class, fighters, botcount, mode, reward):
+    data = LoadData()
     XP = 0
     result = False
     currency = data["Balance"]
@@ -13,12 +15,16 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
     asteroidpng = pg.image.load("asteroid.png")
     dronepng = pg.image.load("drone.png")
     ship_class = ship_class
+    ExtraBots, HPFactor = GetDifficultyFactors()
     if ship_class == "X-Wing":
         fighter = XWing(image=xwingpng)
     elif ship_class == "Bomber":
         fighter = Bomber(image=bomberpng)
+    elif ship_class == "LightCruiser":
+        fighter = LightCruiser(image=lightcruiserpng)
     for ShipData in data["ShipsData"].values():
         if ShipData["Name"] == fighter.name:
+            print(ShipData["XP"])
             fighter.xp = ShipData["XP"]
             startXP = ShipData["XP"]
             break
@@ -29,63 +35,64 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
         objects[len(objects)-1].speed *= 0.01
         objects[len(objects)-1].angle = randint(0, 359)
     bots = []
-    if mode == "battle royal":
-        botcount = 4
+    if mode == "free for all":
+        botcount = 4 + int(ExtraBots * 0.5)
     else:
-        botcount = 8
+        botcount = 8 + ExtraBots
     botclass = "Default"
-    for nr in range(0, botcount+level):
+    for nr in range(0, botcount):
         speed = x_max/30000
         if mode == "battle royal":
             botclass = random.choice(["Default", "FlameBot", "Sniper", "Heavy"])
             if botclass == "Default":
-                hp = 100
+                hp = 100 * HPFactor
                 damage = 5
                 rate = 0.4
             elif botclass == "FlameBot":
-                hp = 80
+                hp = 80 * HPFactor
                 damage = 0
                 rate = -1
             elif botclass == "Sniper":
-                hp = 50
+                hp = 50 * HPFactor
                 damage = 10
                 rate = 1.5
             else:
-                hp = 120
+                hp = 120 * HPFactor
                 damage = 2.5
                 rate = 0.3
         else:
             botclass = random.choice(["Default", "FlameBot", "Kamikaze", "Sniper", "Heavy"])
             if botclass == "Default":
-                hp = 35
+                hp = 35 * HPFactor
                 damage = 1
                 rate = 0.4
             elif botclass == "FlameBot":
-                hp = 20
+                hp = 20 * HPFactor
                 damage = 0
                 rate = -1
             elif botclass == "Kamikaze":
-                hp = 50
+                hp = 50 * HPFactor
                 damage = 0
                 rate = -1
                 speed = x_max/7500
             elif botclass == "Sniper":
-                hp = 10
+                hp = 10 * HPFactor
                 damage = 3
                 rate = 2
             else:
-                hp = 50
+                hp = 50 * HPFactor
                 damage = 0.5
                 rate = 0.3
         bots.append(Bot(randint(0, x_max), randint(0, y_max), dronepng, fire_rate=rate, hp=hp,
                         damage=damage, botclass=botclass, speed=speed))
     spawn_time = time()
-    weapon = 0
+    print(f"Spawned {len(bots)} with HP * {HPFactor} and {ExtraBots} extra bots in {spawn_time}s")
 
 
     def minus_shield(obj, damage):
         if time() >= spawn_time+2:
             obj.damage_timeout = time()
+            print(spawn_time-time())
             if obj.shield > 0:
                 obj.shield -= damage
                 if obj.shield < 0:
@@ -175,7 +182,9 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
             return None
 
     def controller_check(obj, controller_obj, enemies):
-        global weapon
+        if controller_obj.get_button(0):
+            teleport(obj, enemies, objects)
+            print("port initialized")
         if abs(controller_obj.get_axis(0)) >= 0.1 or abs(controller_obj.get_axis(1)) >= 0.1:
             obj.angle = get_angle((0, 0), (-controller_obj.get_axis(0), -controller_obj.get_axis(1)))
             obj.x_speed = -controller_obj.get_axis(0)*obj.speed*2
@@ -184,51 +193,63 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
             obj.x_speed = 0
             obj.y_speed = 0
         if abs(controller_obj.get_axis(2)) >= 0.3 or abs(controller_obj.get_axis(3)) >= 0.3:
-            weapon_angle = get_angle((0, 0), (-controller_obj.get_axis(2), -controller_obj.get_axis(3)))
-            if weapon == 0:
-                shoot_angle = weapon_angle
-                pg.draw.polygon(screen, (255, 0, 0), [(obj.x, obj.y),
-                                (obj.x-sin(radians(shoot_angle-20))*400, obj.y-cos(radians(shoot_angle-20))*400),
-                                (obj.x-sin(radians(shoot_angle+20))*400, obj.y-cos(radians(shoot_angle+20))*400), (obj.x, obj.y)], 2)
-                target = target_system(obj, enemies, shoot_angle, 20)
-                if target is not None:
-                    target.rect_color = (255, 0, 0)
-                    if time() >= obj.shot+obj.fire_rate:
-                        if obj.guns is None:
-                            shoots.append(Shoot(obj.x, obj.y, obj.actual_speed + 10, obj.lock_angle,
+            shoot_angle = get_angle((0, 0), (-controller_obj.get_axis(2), -controller_obj.get_axis(3)))
+            pg.draw.polygon(screen, (255, 0, 0), [(obj.x, obj.y),
+                            (obj.x-sin(radians(shoot_angle-20))*400, obj.y-cos(radians(shoot_angle-20))*400),
+                            (obj.x-sin(radians(shoot_angle+20))*400, obj.y-cos(radians(shoot_angle+20))*400),
+                                                  (obj.x, obj.y)], 2)
+            target = target_system(obj, enemies, shoot_angle, 20)
+            if target is not None:
+                target.rect_color = (255, 0, 0)
+                if time() >= obj.shot+obj.fire_rate:
+                    if obj.guns is None:
+                        shoots.append(Shoot(obj.x, obj.y, obj.actual_speed + 10, obj.lock_angle,
+                                            obj.damage, red_blast, obj))
+                        pg.mixer.Sound.play(laser)
+                    else:
+                        for gun in obj.guns:
+                            nr = obj.guns.index(gun)
+                            img = pg.transform.scale(red_blast, (1, 1))
+                            shoots.append(Shoot(obj.x - sin(radians(obj.angle + 90)) * gun,
+                                                obj.y - cos(radians(obj.angle + 90)) * gun,
+                                                obj.actual_speed + 10, obj.lock_angles[nr],
                                                 obj.damage, red_blast, obj))
-                            pg.mixer.Sound.play(laser)
-                        else:
-                            for gun in obj.guns:
-                                nr = obj.guns.index(gun)
-                                img = pg.transform.scale(red_blast, (1, 1))
-                                shoots.append(Shoot(obj.x - sin(radians(obj.angle + 90)) * gun,
-                                                    obj.y - cos(radians(obj.angle + 90)) * gun,
-                                                    obj.actual_speed + 10, obj.lock_angles[nr],
-                                                    obj.damage, red_blast, obj))
-                            pg.mixer.Sound.play(laser)
-                        obj.shot = time()
-            elif weapon == 1:
-                if obj.fuel > 0:
-                    obj.fuel -= 2
-                    flamethrower(fighter, fighter.speed + 3, chance=10, spread=4, angle=weapon_angle)
+                        pg.mixer.Sound.play(laser)
+                    obj.shot = time()
+        obj.brake = False
+        obj.glide = False
+        obj.left_dodge = False
+        obj.right_dodge = False
+        if controller_obj.get_hat(0)[1] <= -1:
+            obj.brake = True
+        elif controller_obj.get_hat(0)[1] >= 1:
+            obj.glide = True
+        if controller_obj.get_hat(0)[0] <= -1:
+            obj.left_dodge = True
+        elif controller_obj.get_hat(0)[0] >= 1:
+            obj.right_dodge = True
+        if controller_obj.get_axis(5) <= 0.5:
+            obj.let_go_a = True
+        else:
+            if obj.let_go_a:
+                obj.let_go_a = False
+                if "ion_attack" in obj.abilities:
+                    if obj.ions > 0:
+                        ion_attack(obj.x, obj.y, x_max, 10, obj)
+                        obj.ions -= 1
+                if "flamethrower" in obj.abilities:
+                    if time() >= obj.flamethrower_cooldown:
+                        obj.flamethrower = time() + 10
+                        obj.flamethrower_cooldown = time() + 30
         if not controller_obj.get_button(4):
             obj.let_go_b = True
         else:
             if obj.let_go_b:
                 obj.let_go_b = False
-                weapon -= 1
-        if not controller_obj.get_button(5):
-            obj.let_go_b = True
-        else:
-            if obj.let_go_b:
-                obj.let_go_b = False
-                weapon += 1
-        if weapon > 1:
-            weapon = 0
-        elif weapon < 0:
-            weapon = 1
-        show_text(str(weapon))
+                if obj.grenades > 0:
+                    frag_grenades.append(Bomb(obj.x, obj.y, obj.angle,
+                                              1000, obj.speed + 2, frag_grenade, obj))
+                    obj.grenades -= 1
 
     running = True
     while running:
@@ -242,38 +263,36 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                 if event.key == pg.K_ESCAPE:
                     running = False
 
-                if event.key == pg.K_a:
-                    fighter.left = True
-                if event.key == pg.K_d:
-                    fighter.right = True
-                if event.key == pg.K_w:
-                    fighter.glide = True
-                if event.key == pg.K_s:
-                    fighter.brake = True
-                if event.key == pg.K_r:
-                    if weapon == 1:
-                        fighter.flaming = True
+                if fighter.control:
+                    if event.key == pg.K_a:
+                        fighter.left = True
+                    if event.key == pg.K_d:
+                        fighter.right = True
+                    if event.key == pg.K_w:
+                        fighter.glide = True
+                    if event.key == pg.K_s:
+                        fighter.brake = True
 
             if event.type == pg.KEYUP:
-                if event.key == pg.K_a:
-                    fighter.left = False
-                if event.key == pg.K_d:
-                    fighter.right = False
-                if event.key == pg.K_w:
-                    fighter.glide = False
-                if event.key == pg.K_s:
-                    fighter.brake = False
-                if event.key == pg.K_e:
-                    weapon -= 1
-                if event.key == pg.K_t:
-                    weapon += 1
-                if weapon > 1:
-                    weapon = 0
-                if weapon < 0:
-                    weapon = 1
-                if event.key == pg.K_r:
-                    if weapon == 1:
-                        fighter.flaming = False
+                if fighter.control:
+                    if event.key == pg.K_a:
+                        fighter.left = False
+                    if event.key == pg.K_d:
+                        fighter.right = False
+                    if event.key == pg.K_w:
+                        fighter.glide = False
+                    if event.key == pg.K_s:
+                        fighter.brake = False
+                if "ion_attack" in fighter.abilities:
+                    if event.key == pg.K_r:
+                        if fighter.ions > 0:
+                            ion_attack(fighter.x, fighter.y, x_max, 10, fighter)
+                            fighter.ions -= 1
+                if "flamethrower" in fighter.abilities:
+                    if time() >= fighter.flamethrower_cooldown:
+                        if event.key == pg.K_r:
+                            fighter.flamethrower = time()+10
+                            fighter.flamethrower_cooldown = time()+30
                 if fighter.grenades > 0:
                     if event.key == pg.K_t:
                         frag_grenades.append(Bomb(fighter.x, fighter.y, fighter.angle,
@@ -447,11 +466,10 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                         flame = pg.transform.scale(flame, (100, 100))
                         screen.blit(flame, (bot.x-flame.get_width()/2, bot.y-flame.get_height()/2))
 
+        if time() <= fighter.flamethrower:
+            flamethrower(fighter, fighter.speed+3, chance=8, spread=4)
+        show_text(str(int(5-(time()-fighter.damage_timeout))))
         fighter.run_move(controller)
-        if fighter.flaming:
-            if fighter.fuel > 0:
-                fighter.fuel -= 2
-                flamethrower(fighter, fighter.speed + 3, chance=8, spread=4)
         screen.blit(fighter.image,
                     (int(fighter.x - fighter.actual_size[0] / 2), int(fighter.y - fighter.actual_size[1] / 2)))
         pg.draw.rect(screen, fighter.rect_color, [int(fighter.x - fighter.hitbox / 2), int(fighter.y - fighter.hitbox / 2),
