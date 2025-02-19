@@ -475,7 +475,7 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                 if not bot.dead:
                     bot.death_time = time() + 2
                     bot.dead = True
-
+                    pg.mixer.Sound.play(explosion_sound)
                 else:
                     if time() >= bot.death_time:
                         bots.remove(bot)
