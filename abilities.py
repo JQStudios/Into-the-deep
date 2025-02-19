@@ -34,7 +34,7 @@ def flamethrower(parent, speed, chance=10, spread=5, angle=None):
             direction += 360
         elif direction >= 360:
             direction -= 360
-        shoots.append(Shoot(parent.x, parent.y, speed, direction, 1, fireball, parent))
+        shoots.append(Shoot(parent.x, parent.y, speed, direction, 3, fireball, parent))
 
 
 def frag_explosion(asteroid):
