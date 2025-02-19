@@ -350,7 +350,7 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                     hp, damage, rate, speed, botclass = create_bot(mode)
                     bots.append(Bot((x_max/6)*(x+1), 0, dronepng, hp, damage, rate, botclass, speed))
         if controllers > 0:
-            controller_check(fighter, controller, bots, objects)
+            controller_check(fighter, controller, bots)
 
         for obj in objects:
             obj.move()
