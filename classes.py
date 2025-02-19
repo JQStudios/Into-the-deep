@@ -364,7 +364,7 @@ class Ship(pg.sprite.Sprite):
         self.rect_color = (255, 255, 255)
         self.shot = time()
         self.max_shield = 100
-        self.shield = 50
+        self.shield = 100
         self.damage_timeout = 0
         self.xp = xp
         self.weapon = 0
