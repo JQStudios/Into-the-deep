@@ -55,9 +55,10 @@ def create_bot(mode):
 
 def PlayMission(ship_class, fighters, botcount, mode, reward):
     global weapon
+    controller, controllers, vibratetil, vibrating = ConINIT()
     settings = load_settings()
     sounds = settings["sounds"]["active"]
-    print(f"Sound Active: {sounds}")
+    print(f"{TimeStamp()} Sound Active: {sounds}")
     data = LoadData()
     XP = 0
     result = False
@@ -75,7 +76,6 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
         fighter = LightCruiser(image=lightcruiserpng)
     for ShipData in data["ShipsData"].values():
         if ShipData["Name"] == fighter.name:
-            print(ShipData["XP"])
             fighter.xp = ShipData["XP"]
             startXP = ShipData["XP"]
             break
@@ -100,13 +100,12 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
         bots.append(Bot(randint(0, x_max), randint(0, y_max), dronepng, fire_rate=rate, hp=hp,
                         damage=damage, botclass=botclass, speed=speed))
     spawn_time = time()
-    print(f"Spawned {len(bots)} with HP * {HPFactor} and {ExtraBots} extra bots in {spawn_time}s")
+    print(f"{TimeStamp()} Spawned {len(bots)} with HP * {HPFactor} and {ExtraBots} extra bots in {spawn_time}s")
     weapon = 0
 
     def minus_shield(obj, damage):
         if time() >= spawn_time+2:
             obj.damage_timeout = time()
-            print(spawn_time-time())
             if obj.shield > 0:
                 obj.shield -= damage
                 if obj.shield < 0:

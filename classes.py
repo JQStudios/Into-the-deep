@@ -18,9 +18,25 @@ password = b"fkOmnnRUwKgq"
 salt = b"921023"
 kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100000, backend=default_backend())
 key = base64.urlsafe_b64encode(kdf.derive(password))
+
+# Controller initialization
+if 'controller' not in globals():
+    controller = None
+if 'controllers' not in globals():
+    controllers = 0
+if 'vibratetil' not in globals():
+    vibratetil = None
+if 'vibrating' not in globals():
+    vibrating = None
+
+
 # Save settings
 
 SETTINGS_FILE = "settings.json"
+
+# Output Logs
+def TimeStamp():
+    return f"[{strftime('%H:%M:%S', localtime())}]"
 
 
 def in_rect(pos, rect):
@@ -48,6 +64,9 @@ def load_settings():
             },
             "sounds": {
                 "active": True,
+            },
+            "controls": {
+                "ControlMethod": "AUTO"
             },
         }
         save_settings(default_settings)
@@ -122,21 +141,45 @@ else:
 pg.init()
 #screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
 x_max, y_max = screen.get_size()
-pg.key.set_repeat(20, 20)
-pg.joystick.init()
-controllers = 0
-if controllers > 0:
-    controller = pg.joystick.Joystick(0)
-    controller.init()
-else:
-    controller = None
-if controllers > 1:
-    controller1 = pg.joystick.Joystick(1)
-    controller1.init()
-elif controllers <= 0:
-    controller1 = None
-vibratetil = time()
-vibrating = False
+
+
+def ConINIT():
+    global controller, controllers, vibratetil, vibrating 
+    # Control Method
+    settings = load_settings()
+    ControlMethod = settings["controls"]["ControlMethod"]
+#   Auto
+    if ControlMethod == "AUTO":
+        try:
+            pg.key.set_repeat(20, 20)
+            pg.joystick.init()
+            controller = pg.joystick.Joystick(0)
+            controller.init()
+            controllers = 1
+            vibratetil = time()
+            vibrating = False
+            return controller, controllers, vibratetil, vibrating
+        except Exception as e:
+            print("No controller found switching to Keyboard")
+            controller = None
+            return controller, 0, None, None
+    if ControlMethod == "XBOX":
+        try:
+            pg.key.set_repeat(20, 20)
+            pg.joystick.init()
+            controller = pg.joystick.Joystick(0)
+            controller.init()
+            controllers = 1
+            vibratetil = time()
+            vibrating = False
+            return controller, controllers, vibratetil, vibrating
+        except Exception as e:
+            print(f"ERROR: There was en error trying to initialize your controller: {e}, switching to keyboard")
+            controller = None
+            return controller, 0, None, None
+    if ControlMethod == "KEYBOARD":
+        controller = None
+        return controller, 0, None, None
 
 
 def get_angle(vector1, vector2):
