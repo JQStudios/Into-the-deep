@@ -351,7 +351,7 @@ def updateMenus(buttons):
         for button in newlocalbuttons:
             localbuttons.append(button)
     if MenuDisplayID == 8:
-        newlocalbuttons = CreateMenu(caller_level1_x + x_max/5, caller_level1_y, 200, 150, 3, y_max/6, True, "v", "MenuButton", pg.mouse.get_pos(), ["AUTO", "XBOX", "KEYBOARD"], ["auto", "controller(x-box)", "keyboard + mouse"], oldlocalbuttons)
+        newlocalbuttons = CreateMenu(caller_level1_x + x_max/5, caller_level1_y, 200, 150, 3, y_max/6, True, "v", "MenuButton", pg.mouse.get_pos(), ["AUTO", "XBOX", "KEYBOARD"], ["auto", "controller", "keyboard"], oldlocalbuttons)
         for button in newlocalbuttons:
             localbuttons.append(button)
     if MenuDisplayID == 2:
