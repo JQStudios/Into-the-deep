@@ -19,7 +19,7 @@ while running:
     sounds = settings["sounds"]["active"]
     buttons = []
     screen.fill((0, 0, 0))
-    buttons = CreateMenu(x_max/20,y_max-y_max/6, size_x, size_y, 4, x_max/4, 0, "h", "MenuButton", pg.mouse.get_pos(), ["play", "options", "credits", "quit"], ["play", "options", "credits", "quit"], buttons)
+    buttons = CreateMenu(x_max/20, y_max-y_max/6, size_x, size_y, 4, x_max/4, 0, "h", "MenuButton", pg.mouse.get_pos(), ["play", "options", "credits", "quit"], ["play", "options", "credits", "quit"], buttons)
     if buttons is None:
         buttons = updateMenus(buttons)
     DisplayMenus(buttons, pg.mouse.get_pos())

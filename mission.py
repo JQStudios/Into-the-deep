@@ -254,7 +254,8 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
     stars = []
     while len(stars) <= 100:
         stars.append((random.randint(0, x_max), random.randint(0, y_max)))
-    bot_spawn = time()
+    bot_spawn = time()-8
+    bot_start = time()
     while running:
         if dist((fighter.x, fighter.y), (pg.mouse.get_pos()[0], pg.mouse.get_pos()[1])) >= 5:
             fighter.angle = get_angle((fighter.x, fighter.y), (pg.mouse.get_pos()[0], pg.mouse.get_pos()[1])) + 180
@@ -274,10 +275,6 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                     fighter.glide = True
                 if event.key == pg.K_s:
                     fighter.brake = True
-                if event.key == pg.K_r:
-                    if weapon == 1:
-                        fighter.flaming = True
-
             if event.type == pg.KEYUP:
                 if event.key == pg.K_a:
                     fighter.left = False
@@ -287,17 +284,6 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                     fighter.glide = False
                 if event.key == pg.K_s:
                     fighter.brake = False
-                if event.key == pg.K_e:
-                    weapon -= 1
-                if event.key == pg.K_t:
-                    weapon += 1
-                if weapon > 1:
-                    weapon = 0
-                if weapon < 0:
-                    weapon = 1
-                if event.key == pg.K_r:
-                    if weapon == 1:
-                        fighter.flaming = False
                 if fighter.grenades > 0:
                     if event.key == pg.K_t:
                         frag_grenades.append(Bomb(fighter.x, fighter.y, fighter.angle,
@@ -322,34 +308,52 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                     if event.key == pg.K_s:
                         fighter.brake = False
             if event.type == pg.MOUSEBUTTONDOWN:
-                if time() >= fighter.shot + fighter.fire_rate:
-                    if fighter.guns is None:
-                        shoots.append(Shoot(fighter.x, fighter.y, fighter.actual_speed + 10, fighter.lock_angle,
-                                            fighter.damage, red_blast, fighter))
-                    else:
-                        for gun in fighter.guns:
-                            nr = fighter.guns.index(gun)
-                            shoots.append(Shoot(fighter.x - sin(radians(fighter.angle + 90)) * gun,
-                                                fighter.y - cos(radians(fighter.angle + 90)) * gun,
-                                                fighter.actual_speed + 10, fighter.lock_angles[nr],
+                if weapon == 0:
+                    fighter.flaming = False
+                    fighter.shooting = True
+                    if time() >= fighter.shot + fighter.fire_rate:
+                        if fighter.guns is None:
+                            shoots.append(Shoot(fighter.x, fighter.y, fighter.actual_speed + 10, fighter.lock_angle,
                                                 fighter.damage, red_blast, fighter))
-                    if sounds:
-                        pg.mixer.Sound.play(laser)
-                    fighter.shot = time()
+                        else:
+                            for gun in fighter.guns:
+                                nr = fighter.guns.index(gun)
+                                shoots.append(Shoot(fighter.x - sin(radians(fighter.angle + 90)) * gun,
+                                                    fighter.y - cos(radians(fighter.angle + 90)) * gun,
+                                                    fighter.actual_speed + 10, fighter.lock_angles[nr],
+                                                    fighter.damage, red_blast, fighter))
+                        if sounds:
+                            pg.mixer.Sound.play(laser)
+                        fighter.shot = time()
+                elif weapon == 1:
+                    fighter.flaming = True
+                    fighter.shooting = False
+            if event.type == pg.MOUSEBUTTONUP:
+                fighter.flaming = False
+                fighter.shooting = False
+            if event.type == pg.MOUSEWHEEL:
+                if event.y == 1:
+                    weapon -= 1
+                if event.y == -1:
+                    weapon += 1
+                if weapon > 1:
+                    weapon = 0
+                if weapon < 0:
+                    weapon = 1
 
         screen.fill((0, 0, 0))
 # Stars
         for star in stars:
-            pg.draw.circle(screen, (255,255,255), star, 1)
+            pg.draw.circle(screen, (255, 255, 255), star, 1)
         if mode == "defend":
-            if time() >= spawn_time+180:
+            if time() >= bot_start+120:
                 running = False
                 result = True
-            if time() >= bot_spawn+7:
+            if time() >= bot_spawn+10:
                 bot_spawn = time()
                 for x in range(0, 5):
                     hp, damage, rate, speed, botclass = create_bot(mode)
-                    bots.append(Bot((x_max/6)*x, 0, dronepng, hp, damage, rate, botclass, speed))
+                    bots.append(Bot((x_max/6)*(x+1), 0, dronepng, hp, damage, rate, botclass, speed))
         if controllers > 0:
             controller_check(fighter, controller, bots)
 
@@ -504,6 +508,21 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
             if fighter.fuel > 0:
                 fighter.fuel -= 2
                 flamethrower(fighter, fighter.speed + 3, chance=8, spread=4)
+        if fighter.shooting:
+            if time() >= fighter.shot + fighter.fire_rate:
+                if fighter.guns is None:
+                    shoots.append(Shoot(fighter.x, fighter.y, fighter.actual_speed + 10, fighter.lock_angle,
+                                        fighter.damage, red_blast, fighter))
+                else:
+                    for gun in fighter.guns:
+                        nr = fighter.guns.index(gun)
+                        shoots.append(Shoot(fighter.x - sin(radians(fighter.angle + 90)) * gun,
+                                            fighter.y - cos(radians(fighter.angle + 90)) * gun,
+                                            fighter.actual_speed + 10, fighter.lock_angles[nr],
+                                            fighter.damage, red_blast, fighter))
+                if sounds:
+                    pg.mixer.Sound.play(laser)
+                fighter.shot = time()
         screen.blit(fighter.image,
                     (int(fighter.x - fighter.actual_size[0] / 2), int(fighter.y - fighter.actual_size[1] / 2)))
         pg.draw.rect(screen, fighter.rect_color, [int(fighter.x - fighter.hitbox / 2), int(fighter.y - fighter.hitbox / 2),
@@ -562,6 +581,8 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
             bot.rect_color = (255, 0, 0)
         for bot in bots:
             targets.append(bot)
+        if mode == "defend":
+            show_text(str(120-int(time()-bot_start)))
         pg.display.update()
 
         if mode != "defend":
