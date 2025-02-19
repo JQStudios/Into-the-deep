@@ -5,15 +5,18 @@ pg.init()
 pg.font.init()
 font = pg.font.Font("assets/fonts/Starjedi.ttf", 22)
 pg.mixer.init()
+MessageSound = pg.mixer.Sound("button-124476.mp3")
 
-# example
-
-pg.display.set_caption("Menu Example")
+pg.display.set_caption("Main Menu")
 buttons = []
 running = True
 message = None
 size_x, size_y = button_dynamic_size(100, 100, y_max - y_max / 6, 200)
+FT = True
+OldMessage = None
 while running:
+    settings = load_settings()
+    sounds = settings["sounds"]["active"]
     buttons = []
     screen.fill((0, 0, 0))
     buttons = CreateMenu(x_max/20,y_max-y_max/6, size_x, size_y, 4, x_max/4, 0, "h", "MenuButton", pg.mouse.get_pos(), ["play", "options", "credits", "quit"], ["play", "options", "credits", "quit"], buttons)
@@ -30,9 +33,18 @@ while running:
     message = get_message()
     
     if message:
-        message.update()
-        if message.is_done():
+        if FT:
+            if sounds:
+                print("playing sound")
+                pg.mixer.Sound.play(MessageSound)
+        FT = False
+        if not message == None:
+            message.update()
+        if message.is_done() or not message == OldMessage and not OldMessage == None:
+            FT = True # First time called
             message = None
+            get_message(RESET=True)
+        OldMessage = message
 
     pg.display.update()
 pg.quit()

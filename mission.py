@@ -55,6 +55,9 @@ def create_bot(mode):
 
 def PlayMission(ship_class, fighters, botcount, mode, reward):
     global weapon
+    settings = load_settings()
+    sounds = settings["sounds"]["active"]
+    print(f"Sound Active: {sounds}")
     data = LoadData()
     XP = 0
     result = False
@@ -214,7 +217,8 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                         if obj.guns is None:
                             shoots.append(Shoot(obj.x, obj.y, obj.actual_speed + 10, obj.lock_angle,
                                                 obj.damage, red_blast, obj))
-                            pg.mixer.Sound.play(laser)
+                            if sounds:
+                                pg.mixer.Sound.play(laser)
                         else:
                             for gun in obj.guns:
                                 nr = obj.guns.index(gun)
@@ -223,7 +227,8 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                                                     obj.y - cos(radians(obj.angle + 90)) * gun,
                                                     obj.actual_speed + 10, obj.lock_angles[nr],
                                                     obj.damage, red_blast, obj))
-                            pg.mixer.Sound.play(laser)
+                            if sounds:
+                                pg.mixer.Sound.play(laser)
                         obj.shot = time()
             elif weapon == 1:
                 if obj.fuel > 0:
@@ -329,7 +334,8 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                                                 fighter.y - cos(radians(fighter.angle + 90)) * gun,
                                                 fighter.actual_speed + 10, fighter.lock_angles[nr],
                                                 fighter.damage, red_blast, fighter))
-                    pg.mixer.Sound.play(laser)
+                    if sounds:
+                        pg.mixer.Sound.play(laser)
                     fighter.shot = time()
 
         screen.fill((0, 0, 0))
@@ -465,7 +471,8 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                         if bot.guns is None:
                             shoots.append(Shoot(bot.x, bot.y, bot.actual_speed + 10, bot.angle,
                                                 bot.damage, red_blast, fighter))
-                            pg.mixer.Sound.play(laser)
+                            if sounds:
+                                pg.mixer.Sound.play(laser)
                         else:
                             for gun in bot.guns:
                                 nr = bot.guns.index(gun)
@@ -473,7 +480,8 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                                                     bot.y - cos(radians(bot.angle + 90)) * gun,
                                                     bot.actual_speed + 10, bot.angle,
                                                     bot.damage, red_blast, bot))
-                                pg.mixer.Sound.play(laser)
+                                if sounds:
+                                    pg.mixer.Sound.play(laser)
                     elif bot.botclass == "FlameBot":
                         flamethrower(bot, 0.3, 7)
 

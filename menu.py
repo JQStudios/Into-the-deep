@@ -10,17 +10,26 @@ import ast
 import math
 
 
+ButtonSound = pg.mixer.Sound("menu-button-88360.mp3")
+MessageSound = pg.mixer.Sound("button-124476.mp3")
+
 def dashboard():
     pg.init()
     pg.font.init()
     font = pg.font.Font("assets/fonts/Starjedi.ttf", 22)
+    MessageSound = pg.mixer.Sound("button-124476.mp3")
+
 
     pg.display.set_caption("Dashboard")
     buttons = []
     running = True
     message = None
     size_x, size_y = button_dynamic_size(100, 100, y_max - y_max / 6, 200)
+    FT = True
+    OldMessage = None
     while running:
+        settings = load_settings()
+        sounds = settings["sounds"]["active"]
         buttons = []
         screen.fill((0, 0, 0))
         buttons = CreateMenu(x_max / 15, y_max / 10, 200, 150, 4, y_max / 6, 0, "v", "MenuButton", pg.mouse.get_pos(),
@@ -45,10 +54,20 @@ def dashboard():
         ShowBalance(x_max, y_max / 50, screen)
 # Message
         message = get_message()
+
         if message:
-            message.update()
-            if message.is_done():
+            if FT:
+                if sounds:
+                    print("playing sound")
+                    pg.mixer.Sound.play(MessageSound)
+            FT = False
+            if not message == None:
+                message.update()
+            if message.is_done() or not message == OldMessage and not OldMessage == None:
+                FT = True # First time called
                 message = None
+                get_message(RESET=True)
+            OldMessage = message
         pg.display.update()
         pg.display.update()
 
@@ -246,6 +265,9 @@ def execButtonAction(action, button_x, button_y):
     global MenuDisplayID, caller_level1_x, caller_level1_y, caller_level2_x, caller_level2_y, NewMessage, Missions
     print(action)
     MissionSplit = action.split(";", 1)
+    settings = load_settings()
+    if settings["sounds"]["active"]:
+        pg.mixer.Sound.play(ButtonSound)
     if action == "techtree":
         treeing()
     if action=="play":
@@ -346,7 +368,10 @@ def updateMenus(buttons):
 def display_message(screen, text, color = (0, 0, 0), duration=2, speed=5):
     message = Message(text, screen, color, duration, speed)
     return message
-def get_message():
+def get_message(RESET=False):
+    global NewMessage
+    if RESET:
+        NewMessage = None
     return NewMessage
 # Support Functions
 
