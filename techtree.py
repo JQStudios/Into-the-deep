@@ -165,11 +165,12 @@ def TechtreeAction(action = "select", ship_name = "X-Wing", data=None, price = N
             }
         data["ShipsData"][ship_name] = newData
     if action == "buy":
-        data["ShipsData"][ship_name]["Bought"] = True
         if price == None:
             print(f"{TimeStamp()} No price specified")
             return ""
-        data["Balance"] -= price
+        if data["Balance"] >= price:
+            data["Balance"] -= price
+            data["ShipsData"][ship_name]["Bought"] = True
     return data    
 
 
@@ -288,7 +289,7 @@ def treeing():
                                 blink += 1
                             if blink >= 250:
                                 blink = 0
-                        elif ship.price <= data["Balance"] and ship.buy == False and ship.own == True:
+                        elif ship.buy == False and ship.own == True:
                             if blink >= 0 and blink <= 125:
                                 InfoBox(ship.x + ship.image.get_width()/3, ship.y+ship.image.get_height()/3, x_max/4, y_max/4, f"Hold To Buy", f"Price: {data["Balance"]}/{ship.price}", f"speed: {ship.speed}", f"damage: {ship.damage}", f"HP: {ship.hp}", (44, 117, 255))
                                 blink += 1
