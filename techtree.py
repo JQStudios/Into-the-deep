@@ -144,7 +144,7 @@ def InfoBox(x, y, size_x, size_y, Title, Unlocketion, speed, damage, hp, color=(
 
 def TechtreeAction(action = "select", ship_name = "X-Wing", data=None, price = None):
     if data == None:
-        print("No data specified")
+        print(f"{TimeStamp()} No data specified")
         return ""
     if action == "select":
         data["Selection"] = ship_name
@@ -167,7 +167,7 @@ def TechtreeAction(action = "select", ship_name = "X-Wing", data=None, price = N
     if action == "buy":
         data["ShipsData"][ship_name]["Bought"] = True
         if price == None:
-            print("No price specified")
+            print(f"{TimeStamp()} No price specified")
             return ""
         data["Balance"] -= price
     return data    
@@ -187,7 +187,6 @@ def treeing():
             if ship.name == shipdata["Name"]:
                 ship.own = shipdata["Owned"]
                 ship.buy = shipdata["Bought"]
-                print(f"{ship.name}: owned: {ship.own}, bought: {ship.buy}")
     overwritelines = True
     Selected_x, Selected_y = 0, 0
     start, end, t = (0, 0), (0, 0), 0
@@ -257,7 +256,7 @@ def treeing():
                                         found = True
                                         break
                                 if not found:
-                                    print(f"Couldn't find root ship for {ship.name}")
+                                    print(f"{TimeStamp()} Couldn't find root ship for {ship.name}")
                                     ship.own = False
         for ship in ships:
             for ShipData in data["ShipsData"].values():

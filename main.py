@@ -35,7 +35,6 @@ while running:
     if message:
         if FT:
             if sounds:
-                print("playing sound")
                 pg.mixer.Sound.play(MessageSound)
         FT = False
         if not message == None:

@@ -58,7 +58,6 @@ def dashboard():
         if message:
             if FT:
                 if sounds:
-                    print("playing sound")
                     pg.mixer.Sound.play(MessageSound)
             FT = False
             if not message == None:
@@ -71,7 +70,7 @@ def dashboard():
         pg.display.update()
         pg.display.update()
 
-print("menu.py imported")
+print(f"{TimeStamp()} menu.py imported")
 ImageNormal = pg.image.load("ButtonNormal2.png")
 ImageHover = pg.image.load("ButtonHover2.png")
 MissionImageNormal = pg.image.load("MissionSelectiontile.png")
@@ -263,7 +262,6 @@ def CheckMenu(buttons, mousepos=[0,0]):
 
 def execButtonAction(action, button_x, button_y):
     global MenuDisplayID, caller_level1_x, caller_level1_y, caller_level2_x, caller_level2_y, NewMessage, Missions
-    print(action)
     MissionSplit = action.split(";", 1)
     settings = load_settings()
     if settings["sounds"]["active"]:
@@ -271,10 +269,8 @@ def execButtonAction(action, button_x, button_y):
     if action == "techtree":
         treeing()
     if action=="play":
-        print("play")
         dashboard()
     elif action == "missions":
-        #PlayMission("x_wing", None, 10, "asfd")
         Missions = SelectMissions()
         MenuDisplayID=10
     elif action=="options":
@@ -285,6 +281,10 @@ def execButtonAction(action, button_x, button_y):
         MenuDisplayID = 0
     elif action=="quit":
         sys.exit()
+    elif action == "controls":
+        caller_level1_x, caller_level1_y = button_x, button_y
+        MenuDisplayID = 8
+        NewMessage = display_message(screen, f"Controls are currently set to {settings["controls"]["ControlMethod"].lower()}")
     elif action=="sounds":
         caller_level1_x, caller_level1_y = button_x, button_y
         MenuDisplayID = 2
@@ -328,11 +328,15 @@ def execButtonAction(action, button_x, button_y):
     elif action=="SoundsOff":
         settings["sounds"]["active"] = False
         save_settings(settings)
+    elif action == "AUTO" or action == "XBOX" or action == "KEYBOARD":
+        settings["controls"]["ControlMethod"] = action
+        save_settings(settings)
     elif MissionSplit[0] == "StartMission":
         Mission = Mission = ast.literal_eval(MissionSplit[1].strip())
         data = LoadData()
+        print(f"{TimeStamp()} Starting Mission")
         PlayMission(data["Selection"], None, Mission['BC'], Mission['MT'], Mission["RW"])
-        print("Mission Finished")
+        print(f"{TimeStamp()} Mission Finished")
     else:
         NewMessage = display_message(screen, f"error: uknown action: {action}", (200, 0, 0))
 
@@ -342,8 +346,12 @@ def updateMenus(buttons):
     else:
         oldlocalbuttons = buttons
     localbuttons = []
-    if MenuDisplayID > 0 and MenuDisplayID < 6:
-        newlocalbuttons = CreateMenu(x_max/15, y_max/10, 200, 150, 4, y_max/6, True, "v", "MenuButton", pg.mouse.get_pos(), ["graphics", "sounds", "display", "main_menu"], ["graphics", "sounds", "display", "main menu"], oldlocalbuttons)
+    if MenuDisplayID > 0 and MenuDisplayID < 10:
+        newlocalbuttons = CreateMenu(x_max/15, y_max/10, 200, 150, 4, y_max/6, True, "v", "MenuButton", pg.mouse.get_pos(), ["controls", "sounds", "display", "main_menu"], ["controls", "sounds", "display", "main menu"], oldlocalbuttons)
+        for button in newlocalbuttons:
+            localbuttons.append(button)
+    if MenuDisplayID == 8:
+        newlocalbuttons = CreateMenu(caller_level1_x + x_max/5, caller_level1_y, 200, 150, 3, y_max/6, True, "v", "MenuButton", pg.mouse.get_pos(), ["AUTO", "XBOX", "KEYBOARD"], ["auto", "controller(x-box)", "keyboard + mouse"], oldlocalbuttons)
         for button in newlocalbuttons:
             localbuttons.append(button)
     if MenuDisplayID == 2:
@@ -409,7 +417,7 @@ def button_dynamic_size(original_width, original_height, y, size_x=None):
         size_y = int(size_x * aspect_ratio)
         newsize_x = int(size_x * aspect_ratio)
         aspect_ratio -= 0.05
-    print(f"dinamicly changed button size to {aspect_ratio}, new dimensionens are {newsize_x}x{size_y}")
+    print(f"{TimeStamp()} dinamicly changed button size to {aspect_ratio}, new dimensionens are {newsize_x}x{size_y}")
     return newsize_x, size_y
 
 def wrap_text(text, font, max_width, text_color):
@@ -487,7 +495,6 @@ def ShowBalance(x, y, screen, color=(0,0,0)):
         screen.blit(ScaledCoinsImg, ((x * GlobalCoinAnimation) - ScaledCoinsImg.get_width() - 10, y))
         text_size_x, text_size_y = show_text(str(Balance), (color), x * GlobalCoinAnimation, y + text_size_y / 1.5, 50, 1)
         if GlobalCoinAnimation >= (x_max-text_size_x)/x_max:
-            print((x_max-text_size_x)/x_max)
             GlobalCoinAnimation -= 0.002
     else:
         screen.blit(ScaledCoinsImg, ((x * GlobalCoinAnimation) - ScaledCoinsImg.get_width() - 10, y))
