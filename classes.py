@@ -161,10 +161,10 @@ def ConINIT():
             return controller, controllers, vibratetil, vibrating
         except Exception as e:
             print("No controller found switching to Keyboard")
-            controller = None
-            return controller, 0, None, None
+            controller, controllers, vibratetil, vibrating = None, 0, None, None
+            return None, 0, None, None
     if ControlMethod == "XBOX":
-        try:
+        try: 
             pg.key.set_repeat(20, 20)
             pg.joystick.init()
             controller = pg.joystick.Joystick(0)
@@ -175,11 +175,11 @@ def ConINIT():
             return controller, controllers, vibratetil, vibrating
         except Exception as e:
             print(f"ERROR: There was en error trying to initialize your controller: {e}, switching to keyboard")
-            controller = None
-            return controller, 0, None, None
+            controller, controllers, vibratetil, vibrating = None, 0, None, None
+            return None, 0, None, None
     if ControlMethod == "KEYBOARD":
-        controller = None
-        return controller, 0, None, None
+        controller, controllers, vibratetil, vibrating = None, 0, None, None
+        return None, 0, None, None
 
 
 def get_angle(vector1, vector2):
