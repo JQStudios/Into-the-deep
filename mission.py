@@ -92,6 +92,7 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
         reward = reward * 0.5
     elif mode == "defend":
         botcount = 0
+        reward = reward * 2.5
     else:
         botcount = 8 + ExtraBots
     reward = int(reward * (HPFactor/2))
