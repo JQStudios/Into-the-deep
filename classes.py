@@ -363,7 +363,7 @@ class Ship(pg.sprite.Sprite):
         self.abilities = []
         self.rect_color = (255, 255, 255)
         self.shot = time()
-        self.max_shield = 50
+        self.max_shield = 100
         self.shield = 50
         self.damage_timeout = 0
         self.xp = xp
@@ -427,6 +427,11 @@ class Ship(pg.sprite.Sprite):
                 vibrating = False
             self.image = pg.transform.rotate(self.org_image, self.angle)
             self.actual_size = [self.image.get_width(), self.image.get_height()]
+            if time() >= self.damage_timeout + 5:
+                if self.shield < self.max_shield:
+                    self.shield += 0.05 * timeout
+                else:
+                    self.shield = self.max_shield
         else:
             if time() >= self.dodge_time+0.1:
                 self.dodge_ready = False

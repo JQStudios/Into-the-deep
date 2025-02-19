@@ -284,11 +284,6 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                     fighter.glide = False
                 if event.key == pg.K_s:
                     fighter.brake = False
-                if fighter.grenades > 0:
-                    if event.key == pg.K_t:
-                        frag_grenades.append(Bomb(fighter.x, fighter.y, fighter.angle,
-                                                  1000, fighter.speed + 2, frag_grenade, fighter))
-                        fighter.grenades -= 1
 
                 if fighter.control:
                     if event.key == pg.K_a:
@@ -370,20 +365,6 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                     controller.rumble(0, 1, 0)
                 objects.remove(obj)
                 break
-
-        for grenade in frag_grenades:
-            for asteroid in objects:
-                if control_overlaps(grenade.direction, asteroid):
-                    frag_explosion(grenade)
-                    break
-            if grenade.parent != fighter:
-                if control_overlaps(grenade.direction, fighter):
-                    frag_explosion(grenade)
-                    break
-            if grenade.move():
-                frag_explosion(grenade)
-                break
-            screen.blit(grenade.image, (grenade.x-grenade.image.get_width()/2, grenade.y-grenade.image.get_height()/2))
 
         for shoot in shoots:
             if shoot.delete():
