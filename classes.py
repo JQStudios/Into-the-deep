@@ -29,6 +29,9 @@ if 'vibratetil' not in globals():
 if 'vibrating' not in globals():
     vibrating = None
 
+pg.mixer.init()
+charge = pg.mixer.Sound("sci-fi-charge-up-37395.mp3")
+
 
 # Save settings
 
@@ -372,6 +375,7 @@ class Ship(pg.sprite.Sprite):
         self.fuel = 300
         self.flaming = False
         self.shooting = False
+        self.charging = False
 
     def minus_shield(self, damage):
         self.damage_timeout = time()
@@ -428,10 +432,15 @@ class Ship(pg.sprite.Sprite):
             self.image = pg.transform.rotate(self.org_image, self.angle)
             self.actual_size = [self.image.get_width(), self.image.get_height()]
             if time() >= self.damage_timeout + 5:
+                if not self.charging:
+                    self.charging = True
+                    pg.mixer.Sound.play(charge)
                 if self.shield < self.max_shield:
                     self.shield += 0.05 * timeout
                 else:
                     self.shield = self.max_shield
+            else:
+                self.charging = False
         else:
             if time() >= self.dodge_time+0.1:
                 self.dodge_ready = False
@@ -500,10 +509,15 @@ class Ship(pg.sprite.Sprite):
             if self.shield < 0:
                 self.shield = 0
             if time() >= self.damage_timeout + 5:
+                if not self.charging:
+                    self.charging = True
+                    pg.mixer.Sound.play(charge)
                 if self.shield < self.max_shield:
                     self.shield += 0.05 * timeout
                 else:
                     self.shield = self.max_shield
+            else:
+                self.charging = False
 
 
 class Bot(Ship):

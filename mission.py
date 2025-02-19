@@ -3,6 +3,7 @@ from techtree import *
 
 laser = pg.mixer.Sound("retro-laser-1-236669.mp3")
 laser.set_volume(0.2)
+explosion_sound = pg.mixer.Sound("large-underwater-explosion-190270.mp3")
 weapon = 0
 
 
@@ -474,13 +475,14 @@ def PlayMission(ship_class, fighters, botcount, mode, reward):
                 if not bot.dead:
                     bot.death_time = time() + 2
                     bot.dead = True
+
                 else:
                     if time() >= bot.death_time:
                         bots.remove(bot)
                         XP += 50
                         break
                     else:
-                        flame = pg.image.load("fireball.png")
+                        flame = pg.image.load("explosion.png")
                         flame = pg.transform.scale(flame, (100, 100))
                         screen.blit(flame, (bot.x - flame.get_width() / 2, bot.y - flame.get_height() / 2))
 
